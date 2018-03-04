@@ -84,7 +84,7 @@
 		throw std::runtime_error(e.what()); \
 	} \
     }   
-
+#endif
 namespace util {
 
 	struct Message_source {
@@ -153,7 +153,7 @@ namespace util {
 #define MSG_NEWLOGGING_SESSION "NEW LOGGING SESSION STARTED"
 #define MSG_CLOSELOGGIN_SESSION "CLOSING LOGGING SESSION"
 #if !defined(MESSAGE_SOURCE)
-#define MESSAGE_SOURCE util::Message_source(JL_FILENAME, __FUNCTION__, __LINE__)
+#define MESSAGE_SOURCE util::Message_source(GET_BASENAME, __FUNCTION__, __LINE__)
 #endif
 #if !defined(INFO)
 #define INFO(Message_desc) util::Info_message(MESSAGE_SOURCE, Message_desc)
@@ -176,7 +176,5 @@ namespace util {
 #if !defined(APPERR)
 #define APPERR(Message_desc) util::Application_error_message(MESSAGE_SOURCE, Message_desc)
 #endif
-
-#include"util/xml_tools.h"
 
 #endif
