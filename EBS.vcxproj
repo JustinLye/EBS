@@ -139,20 +139,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ebs\BaseEvent.cc" />
     <ClCompile Include="src\ebs\CallBack.cc" />
     <ClCompile Include="src\ebs\Event.cc" />
     <ClCompile Include="src\ebs\EventModule.cc" />
     <ClCompile Include="src\ebs\EventName.cc" />
     <ClCompile Include="src\ebs\MailBox.cc" />
+    <ClCompile Include="src\graphics\WindowEvent.cc" />
+    <ClCompile Include="src\graphics\WindowEventName.cc" />
+    <ClCompile Include="src\util\Singleton.cc" />
     <ClCompile Include="src\util\UtilityDefs.cc" />
     <ClCompile Include="src\util\Thread.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ebs\BaseEvent.h" />
     <ClInclude Include="include\ebs\CallBack.h" />
     <ClInclude Include="include\ebs\Event.h" />
     <ClInclude Include="include\ebs\EventModule.h" />
     <ClInclude Include="include\ebs\EventName.h" />
     <ClInclude Include="include\ebs\MailBox.h" />
+    <ClInclude Include="include\graphics\WindowEvent.h" />
+    <ClInclude Include="include\graphics\WindowEventName.h" />
+    <ClInclude Include="include\util\Singleton.h" />
     <ClInclude Include="include\util\Thread.h" />
     <ClInclude Include="include\util\UtilityDefs.h" />
   </ItemGroup>
