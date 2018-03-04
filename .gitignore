@@ -1,9 +1,3 @@
-bin/*
+tmp/*
+Debug/*
 lib/*
-*.log
-*.exe
-*.obj
-.vs/*
-*vcxproj
-*.sln
-*vcxproj*
