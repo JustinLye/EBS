@@ -2,7 +2,7 @@
 #define CALLBACK_HEADER_INCLUDED
 #include <stdexcept>
 #include <functional>
-#include "util/msgdefs.h"
+#include "util/UtilityDefs.h"
 
 
 //////////////////////////////////////////////
@@ -29,6 +29,6 @@ public:
 };
 
 #ifndef CALLBACK_CC_INCLUDED
-#include"actor-model/CallBack.cc"
+#include"ebs/CallBack.cc"
 #endif
 #endif
