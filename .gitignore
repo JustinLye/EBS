@@ -1,0 +1,9 @@
+bin/*
+lib/*
+*.log
+*.exe
+*.obj
+.vs/*
+*vcxproj
+*.sln
+*vcxproj*
