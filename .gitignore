@@ -2,3 +2,10 @@ tmp/*
 Debug/*
 lib/*
 .vs/*
+*.obj
+*.log
+*.vs/*
+*vc*
+*.tlog
+Debug/*
+*Debug/*

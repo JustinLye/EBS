@@ -10,8 +10,7 @@
 
 #ifdef BUILD_CALLBACK_CC
 //This section is reserved for non-template definitions
-const char* ERR_MSG_ATTEMPT_TO_RESET_CB = "Callback function has already been set.";
-const char* ERR_MSG_CB_NOT_SET = "Callback function has not been set.";
+
 #endif
 
 template<typename R, class T, typename Arg>
@@ -39,7 +38,7 @@ void CallBack<R, T, Arg>::SetCallBackFunction(funct_ptr_t funct_ptr, T* ptr)
 {
 	if (mCallBackFunc)
 	{
-		throw std::runtime_error(APP_ERROR_MESSAGE(ERR_MSG_ATTEMPT_TO_RESET_CB));
+		throw std::runtime_error(APP_ERROR_MESSAGE("Callback function has already been set."));
 	}
 	mCallBackFunc = std::bind(funct_ptr, ptr, std::placeholders::_1);
 }
@@ -48,7 +47,7 @@ R CallBack<R, T, Arg>::operator()(Arg arg)
 {
 	if (!mCallBackFunc)
 	{
-		throw std::runtime_error(APP_ERROR_MESSAGE(ERR_MSG_CB_NOT_SET));
+		throw std::runtime_error(APP_ERROR_MESSAGE("Callback function has not been set."));
 	}
 	mCallBackFunc(arg);
 }

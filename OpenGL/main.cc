@@ -1,13 +1,10 @@
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
-#include"graphics/WindowEvent.h"
-struct Foo
-{
-	static void MouseButtonCB(GLFWwindow*, int, int, int);
-};
+//#include"util/Singleton.h"
+#include"graphics/WindowController.h"
 
-void MouseButtonCB(GLFWwindow*, int, int, int);
+
 int main(int argc, char* argv)
 {
 	glfwInit();
@@ -21,8 +18,9 @@ int main(int argc, char* argv)
 		glfwTerminate();
 		return -1;
 	}
-	glfwMakeContextCurrent(window);
-	glfwSetMouseButtonCallback(window, Foo::MouseButtonCB);
+	WindowController::Bind(window);
+	WindowController::Start();
+	
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -46,19 +44,6 @@ int main(int argc, char* argv)
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
+	WindowController::Stop();
 	return EXIT_SUCCESS;
-}
-
-void Foo::MouseButtonCB(GLFWwindow* window, int button, int action, int mods)
-{
-	std::string button_str = button == 0 ? "Left-Button " : "Right-Button ";
-	std::string action_str = action == 1 ? "pressed" : "released";
-	std::cout << button_str.c_str() << action_str.c_str() << '\n';
-}
-
-void MouseButtonCB(GLFWwindow* window, int button, int action, int mods)
-{
-	std::cout << "Button: " << button << '\n'
-		<< "Action: " << action << '\n'
-		<< "Mods: " << mods << '\n';
 }
