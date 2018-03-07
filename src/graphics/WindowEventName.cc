@@ -11,6 +11,8 @@ namespace
 		{ CURSOR_POS, {"x","y"}, nullptr },
 		{ TEXT_INPUT, {"Text"}, nullptr },
 		{ KEY_PRESS, {"Key","Scancode","Action","Mods"}, nullptr},
+		{ MOUSE_SCROLL, {"Xoffset", "Yoffset"}, nullptr},
+		{ CURSOR_ENTER, {"CursorEntered"}, nullptr},
 		{ MAX_WINDOW_EVENT_NUM, {""}, nullptr }
 	};
 };

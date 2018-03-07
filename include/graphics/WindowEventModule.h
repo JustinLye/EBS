@@ -11,13 +11,4 @@ public:
 	virtual ~WindowEventModule();
 };
 
-WindowEventModule::WindowEventModule(const unsigned int& id) :
-	BaseModule<WindowEvent>(id)
-{
-}
-
-WindowEventModule::~WindowEventModule()
-{
-
-}
 #endif
