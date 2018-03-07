@@ -4,6 +4,12 @@
 //#include"util/Singleton.h"
 #include"graphics/WindowController.h"
 
+class TestWindowCtlr :
+	public WindowEventInterface
+{
+public:
+
+};
 
 int main(int argc, char* argv)
 {
@@ -18,9 +24,9 @@ int main(int argc, char* argv)
 		glfwTerminate();
 		return -1;
 	}
-	WindowController::Bind(window);
-	WindowController::Start();
-	
+	WindowEventInterface::Start();
+	WindowEventInterface::Bind(window);
+	WindowController winctlr;
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -34,7 +40,6 @@ int main(int argc, char* argv)
 		// input
 		// -----
 		
-
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
@@ -44,6 +49,6 @@ int main(int argc, char* argv)
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
-	WindowController::Stop();
+	WindowEventInterface::Stop();
 	return EXIT_SUCCESS;
 }

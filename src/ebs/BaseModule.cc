@@ -66,7 +66,9 @@ void BaseModule<EventType>::AddEvent(std::shared_ptr<EventType> event_item)
 	cb_ptr handler = LookupEventHandler(event_item);
 	if (!handler)
 	{
-		throw std::runtime_error(APP_ERROR_MESSAGE("Unhandled event")); // this is just for testing
+		// Need to handle this better
+		return;
+		//throw std::runtime_error(APP_ERROR_MESSAGE("Unhandled event")); // this is just for testing
 	}
 	mMailBox.AcceptMail({ event_item, handler });
 }

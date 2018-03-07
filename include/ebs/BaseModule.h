@@ -5,8 +5,6 @@
 #include"util/Thread.h"
 #include"ebs/MailBox.h"
 #include"ebs/CallBack.h"
-//#include"ebs/Event.h"
-
 
 template<class EventType>
 class BaseModule :
@@ -49,9 +47,9 @@ public:
 		
 		mEventHandlerMap[event_name] = std::make_shared<CallBack<void, BaseModule<EventType>, std::shared_ptr<EventType>>>(reinterpret_cast<void(BaseModule<EventType>::*)(std::shared_ptr<EventType>)>(funct_ptr), this);
 	}
-	void AddEvent(event_ptr);
-	void AddSubscriber(std::shared_ptr<BaseModule>);
-	void SendToSubscribers(event_ptr);
+	virtual void AddEvent(event_ptr);
+	virtual void AddSubscriber(std::shared_ptr<BaseModule>);
+	virtual void SendToSubscribers(event_ptr);
 	static event_ptr MakeEventPtr(const typename EventType::name_type& event_name)
 	{
 		return std::make_shared<EventType>(event_name);

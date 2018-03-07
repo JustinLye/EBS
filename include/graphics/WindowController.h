@@ -1,101 +1,47 @@
-#ifndef WINDOW_CONTROLLER_HEADER
-#define WINDOW_CONTROLLER_HEADER
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include"graphics/WindowEventModule.h"
-struct GLFWwindow;
-class WindowController : protected WindowEventModule
+#ifndef WINDOW_CONTROLLER_HEADER_INCLUDED
+#define WINDOW_CONTROLLER_HEADER_INCLUDED
+
+#include"graphics/WindowEventInterface.h"
+
+class WindowController :
+	private WindowEventModule
 {
-private:
-	
 protected:
-	static WindowController* mInstance;
-	WindowEventModule* mModule;
-
-	bool IsModuleLaunched() const;
-	static void Initialize(); // register callbacks etc.
-	void EHMouseClickCB(std::shared_ptr<WindowEvent>);
-	
-	explicit WindowController(const unsigned int&) :
-		WindowEventModule(1),
-		mModule(nullptr)
-	{
-
-	}
-
+	std::shared_ptr<WindowEventModule> mModule;
+	WindowEventInterface* mEventInterface;
+	void HandleKeyPress(std::shared_ptr<WindowEvent>);
 public:
-
-
-	template<class T>
-	void AddSubscriber(std::shared_ptr<T> subscriber)
-	{
-		mModule->AddSubscriber(subscriber);
-	}
-	static WindowController* GetInstance();
-	static void Bind(GLFWwindow*);
-	static void Start();
-	static void Stop();
-	static void MouseClickCB(GLFWwindow*, int, int, int);
-	
+	WindowController();
+	virtual ~WindowController();
 };
 
-WindowController* WindowController::mInstance = nullptr;
-
-bool WindowController::IsModuleLaunched() const
+WindowController::WindowController() :
+	WindowEventModule(1),
+	mModule(std::make_shared<WindowEventModule>(1))
 {
-	return GetInstance()->mModule->joinable();
+	mEventInterface = WindowEventInterface::GetInstance();
+	WindowEventInterface::SubscribeModuleToWindowEvents(mModule);
+	mModule->RegisterEventHandler(EventName::KEY_PRESS, &WindowController::HandleKeyPress);
+	mModule->Launch();
 }
 
-void WindowController::Initialize()
-{
-	mInstance->mModule = new WindowEventModule(1);
-	mInstance->mModule->RegisterEventHandler(EventName::MOUSE_CLICK, &WindowController::EHMouseClickCB);
-}
 
-void WindowController::EHMouseClickCB(std::shared_ptr<WindowEvent> event_ptr)
+WindowController::~WindowController()
 {
-	std::cout << "Button: " << event_ptr->Get<int>(EventName::MOUSE_CLICK_BUTTON) << '\n';
-}
-
-WindowController* WindowController::GetInstance()
-{
-	if (!mInstance)
+	if (mModule->joinable())
 	{
-		mInstance = new WindowController(1);
-		mInstance->Initialize();
-	}
-	return mInstance;
-}
-
-void WindowController::Bind(GLFWwindow* window)
-{
-	glfwMakeContextCurrent(window);
-	glfwSetMouseButtonCallback(window, WindowController::MouseClickCB);
-
-}
-void WindowController::Start()
-{
-	GetInstance()->mModule->Launch();
-}
-
-void WindowController::Stop()
-{
-	
-	if (GetInstance()->IsModuleLaunched())
-	{
-		WindowController* controller = GetInstance();
-		controller->mModule->AddEvent(std::make_shared<WindowEvent>(EventName::SHUTDOWN_WINDOW_EVENT, nullptr));
-		controller->mModule->join();
+		auto event_ptr = std::make_shared<WindowEvent>(EventName::SHUTDOWN_WINDOW_EVENT, nullptr);
+		mModule->AddEvent(event_ptr);
+		mModule->join();
 	}
 }
 
-void WindowController::MouseClickCB(GLFWwindow* window, int button, int action, int mods)
+void WindowController::HandleKeyPress(std::shared_ptr<WindowEvent> event_ptr)
 {
-	auto event_ptr = std::make_shared<WindowEvent>(EventName::MOUSE_CLICK, window);
-	event_ptr->Set<int>(EventName::MOUSE_CLICK_BUTTON, button);
-	event_ptr->Set<int>(EventName::MOUSE_CLICK_ACTION, action);
-	event_ptr->Set<int>(EventName::MOUSE_CLICK_MODS, mods);
-	mInstance->mModule->AddEvent(event_ptr);
+	if (event_ptr->Get<int>(EventName::KEY_PRESS_KEY) == GLFW_KEY_ESCAPE)
+	{
+		glfwSetWindowShouldClose(event_ptr->GetWindowPtr(), GLFW_TRUE);
+	}
 }
 
 
