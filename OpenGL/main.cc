@@ -5,8 +5,7 @@
 //#include"graphics/WindowController.h"
 #include"graphics/AppController.h"
 #include"util/FileReader.h"
-#include"graphics/VertexBufferEventModule.h"
-#include"graphics/BaseShapeModule.h"
+#include"graphics/shape/BaseShape.h"
 
 const char* VERT_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\core.vert";
 const char* FRAG_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\core.frag";
@@ -18,40 +17,6 @@ public:
 
 };
 
-struct TestShapeWrapper
-{
-	std::shared_ptr<VertexBufferEventModule> vbuff_ptr;
-	std::shared_ptr<BaseShapeModule> shp_mod_ptr;
-	TestShapeWrapper() :
-		vbuff_ptr(std::make_shared<VertexBufferEventModule>()),
-		shp_mod_ptr(std::make_shared<BaseShapeModule>(vbuff_ptr))
-	{
-		vbuff_ptr->AddSubscriber(shp_mod_ptr);
-		vbuff_ptr->Launch();
-		shp_mod_ptr->Launch();
-	}
-	GLuint GetVAO()
-	{
-		return shp_mod_ptr->GetVAO();
-	}
-	void Shutdown()
-	{
-		if (shp_mod_ptr->joinable())
-		{
-			shp_mod_ptr->AddEvent(MakeVBuffEventPtr(EventName::VBUFF_SHUTDOWN, shp_mod_ptr->GetId()));
-			shp_mod_ptr->join();
-		}
-		if (vbuff_ptr->joinable())
-		{
-			vbuff_ptr->AddEvent(MakeVBuffEventPtr(EventName::VBUFF_SHUTDOWN, vbuff_ptr->GetId()));
-			vbuff_ptr->join();
-		}
-	}
-	~TestShapeWrapper()
-	{
-		Shutdown();
-	}
-};
 
 int CreateShaderProg();
 int main(int argc, char* argv)
@@ -82,54 +47,25 @@ int main(int argc, char* argv)
 		0.65f, 0.9f, 0.0f
 	};
 
-	TestShapeWrapper shape_wrapper;
-
-	unsigned int VBO, VBO2, VAO2;
-	//unsigned int VAO = 0;
-	//shape_wrapper.GetVAO();
-	//std::this_thread::sleep_for(std::chrono::seconds(1));
-	//VAO = shape_wrapper.GetVAO();
-	std::cout << "shape_wrapper VAO ";
-	std::cout << shape_wrapper.GetVAO() << '\n';
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	std::cout << 'VAO ' << VAO << '\n';
-	//std::cout << "Shape Wrapper VAO " << shape_wrapper.GetVAO() << '\n';
-	glGenVertexArrays(1, &VAO2);
-	std::cout << "VAO2 " << VAO2 << '\n';
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &VBO2);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindVertexArray(VAO2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verts2), verts2, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	BaseShape left_tri;
+	BaseShape point_data;
+	point_data.SetPointData(verts2, 9);
+	left_tri.SetPointData(verts, 9);
+	point_data.Initialize();
+	left_tri.Initialize();
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(shader_prog);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(VAO2);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		left_tri.Draw();
+		point_data.Draw();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-	//glDeleteVertexArrays(1, &shape_wrapper.GetVAO());
-	glDeleteVertexArrays(1, &VAO2);
-	glDeleteBuffers(1, &VBO);
-	shape_wrapper.Shutdown();
+	point_data.Shutdown();
+	left_tri.Shutdown();
 	app.Shutdown();
 	
 	return EXIT_SUCCESS;

@@ -1,7 +1,7 @@
 #ifndef APP_CONTROLLER_HEADER_INCLUDED
 #define APP_CONTROLLER_HEADER_INCLUDED
 
-#include"graphics/WindowController.h"
+#include"graphics/window/WindowController.h"
 
 class AppController
 {
