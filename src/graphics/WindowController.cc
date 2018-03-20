@@ -2,8 +2,8 @@
 
 
 WindowController::WindowController() :
-	WindowEventModule(1),
-	mModule(std::make_shared<WindowEventModule>(1))
+	WindowEventModule(),
+	mModule(std::make_shared<WindowEventModule>())
 {
 	mEventInterface = WindowEventInterface::GetInstance();
 	WindowEventInterface::SubscribeModuleToWindowEvents(mModule);
@@ -23,8 +23,17 @@ WindowController::~WindowController()
 
 void WindowController::HandleKeyPress(std::shared_ptr<WindowEvent> event_ptr)
 {
+	int key = event_ptr->Get<int>(EventName::KEY_PRESS_KEY);
+	switch (key)
+	{
+	case GLFW_KEY_ESCAPE:
+		break;
+	case GLFW_KEY_SPACE:
+		break;
+	}
 	if (event_ptr->Get<int>(EventName::KEY_PRESS_KEY) == GLFW_KEY_ESCAPE)
 	{
 		glfwSetWindowShouldClose(event_ptr->GetWindowPtr(), GLFW_TRUE);
 	}
+	
 }

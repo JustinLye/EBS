@@ -2,6 +2,10 @@
 #define BASE_MODULE_CC_INCLUDED
 #include"ebs/BaseModule.h"
 //#ifdef BUILD_BASE_EVENT_MODULE_CC
+
+template<class EventType>
+unsigned int BaseModule<EventType>::NextModuleId = 0;
+
 template<class EventType>
 void BaseModule<EventType>::EntryPoint()
 {
@@ -48,8 +52,8 @@ std::shared_ptr<CallBack<void, BaseModule<EventType>, std::shared_ptr<EventType>
 }
 
 template<class EventType>
-BaseModule<EventType>::BaseModule(const unsigned int& id) :
-	mId(id),
+BaseModule<EventType>::BaseModule() :
+	mId(++BaseModule<EventType>::NextModuleId),
 	mShutdown(false),
 	Thread()
 {
@@ -86,6 +90,12 @@ void BaseModule<EventType>::SendToSubscribers(std::shared_ptr<EventType> event_i
 	{
 		std::shared_ptr<BaseModule>(subscriber)->AddEvent(event_item);
 	}
+}
+
+template<class EventType>
+const unsigned int& BaseModule<EventType>::GetId() const
+{
+	return mId;
 }
 //#endif
 

@@ -33,6 +33,10 @@ protected:
 		}
 	}
 public:
+	BaseEvent(const NameType& event_name) :
+		mName(event_name)
+	{
+	}
 	virtual ~BaseEvent() {}
 	void Set(const NameType& field_name, const std::string& field_value)
 	{

@@ -9,6 +9,7 @@ class WindowController :
 protected:
 	std::shared_ptr<WindowEventModule> mModule;
 	WindowEventInterface* mEventInterface;
+
 	void HandleKeyPress(std::shared_ptr<WindowEvent>);
 public:
 	WindowController();

@@ -28,7 +28,7 @@ protected:
 	static WindowEventInterface* mInstance;
 	WindowEventModule* mModule;
 	
-	explicit WindowEventInterface(const unsigned int&);
+	WindowEventInterface();
 	
 	void ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr);
 	bool IsModuleLaunched() const;

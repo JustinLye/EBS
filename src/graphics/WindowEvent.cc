@@ -1,12 +1,19 @@
 #include"graphics/WindowEvent.h"
 
 WindowEvent::WindowEvent(const EventName::window_event_name_t& event_name, GLFWwindow* window) :
+	BaseEvent<EventName::window_event_name_t>(event_name),
+	mWindow(window)
+{
+	mFieldValues = std::vector<std::string>(GetFieldRange(event_name), "");
+}
+
+/*WindowEvent::WindowEvent(const EventName::window_event_name_t& event_name, GLFWwindow* window) :
 	BaseEvent<EventName::window_event_name_t>()
 {
 	mName = event_name;
 	mFieldValues = std::vector<std::string>(GetFieldRange(event_name), "");
 	mWindow = window;
-}
+}*/
 
 std::unordered_map<EventName::window_event_name_t, int> WindowEvent::GetRangeMap()
 {

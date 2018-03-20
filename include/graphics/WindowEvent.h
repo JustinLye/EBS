@@ -12,7 +12,8 @@ protected:
 public:
 	using name_type = typename EventName::window_event_name_t;
 	static const name_type shutdown_event = EventName::SHUTDOWN_WINDOW_EVENT;
-	explicit WindowEvent(const EventName::window_event_name_t&, GLFWwindow* = nullptr);
+	WindowEvent(const EventName::window_event_name_t&, GLFWwindow* = nullptr);
+	//explicit WindowEvent(const EventName::window_event_name_t&, GLFWwindow* = nullptr);
 	GLFWwindow* GetWindowPtr();
 };
 

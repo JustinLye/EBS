@@ -2,8 +2,8 @@
 
 WindowEventInterface* WindowEventInterface::mInstance = nullptr;
 
-WindowEventInterface::WindowEventInterface(const unsigned int& id) :
-	WindowEventModule(1),
+WindowEventInterface::WindowEventInterface() :
+	WindowEventModule(),
 	mModule(nullptr)
 {
 
@@ -24,7 +24,7 @@ bool WindowEventInterface::IsModuleLaunched() const
 void WindowEventInterface::Initialize()
 {
 	// REGISTER ALL INTERAL CALLBACKS
-	mInstance->mModule = new WindowEventModule(1);
+	mInstance->mModule = new WindowEventModule;
 	mInstance->mModule->RegisterEventHandler(EventName::MOUSE_CLICK, &WindowEventInterface::ForwardWindowEvent);
 	mInstance->mModule->RegisterEventHandler(EventName::CURSOR_POS, &WindowEventInterface::ForwardWindowEvent);
 	mInstance->mModule->RegisterEventHandler(EventName::TEXT_INPUT, &WindowEventInterface::ForwardWindowEvent);
@@ -37,7 +37,7 @@ WindowEventInterface* WindowEventInterface::GetInstance()
 {
 	if (!mInstance)
 	{
-		mInstance = new WindowEventInterface(1);
+		mInstance = new WindowEventInterface;
 		mInstance->Initialize();
 	}
 	return mInstance;
@@ -55,7 +55,10 @@ void WindowEventInterface::Bind(GLFWwindow* window)
 }
 void WindowEventInterface::Start()
 {
-	GetInstance()->mModule->Launch();
+	if (!GetInstance()->IsModuleLaunched())
+	{
+		GetInstance()->mModule->Launch();
+	}
 }
 
 void WindowEventInterface::Stop()

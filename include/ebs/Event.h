@@ -21,9 +21,9 @@ public:
 	using name_type = typename EventName::event_name_t;
 	static const name_type shutdown_event = EventName::SHUTDOWNEVENT;
 	explicit Event(const EventName::event_name_t event_name) :
-		BaseEvent<EventName::event_name_t>()
+		BaseEvent<EventName::event_name_t>(event_name)
 	{
-		mName = event_name;
+		//mName = event_name;
 		mFieldValues = std::vector<std::string>(GetFieldRange(event_name), "");
 	}
 };

@@ -8,13 +8,13 @@ class EventModule : public BaseModule<Event>
 {
 	void Test(std::shared_ptr<Event>);
 public:
-	explicit EventModule(const unsigned int&);
+	explicit EventModule();
 	virtual ~EventModule();
 
 };
 
-EventModule::EventModule(const unsigned int& id) :
-	BaseModule<Event>(id)
+EventModule::EventModule() :
+	BaseModule<Event>()
 {
 	RegisterEventHandler(EventName::ERROREVENT, &EventModule::Test);
 }

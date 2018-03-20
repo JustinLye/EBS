@@ -6,6 +6,7 @@
 #include"ebs/MailBox.h"
 #include"ebs/CallBack.h"
 
+
 template<class EventType>
 class BaseModule :
 	public Thread
@@ -16,7 +17,8 @@ public:
 	using bound_cb = std::pair<event_ptr, cb_ptr>;
 	using cb_map = std::map<typename EventType::name_type, cb_ptr>;
 	using event_type = unsigned int;
-
+private:
+	static unsigned int NextModuleId;
 protected:
 	bool mShutdown;
 	void EntryPoint();
@@ -24,17 +26,12 @@ protected:
 	virtual void EventLoop();
 	virtual void HandleShutdown(event_ptr);
 	virtual cb_ptr LookupEventHandler(event_ptr);
-	const unsigned int mId;
+	unsigned int mId;
 	cb_map mEventHandlerMap;
 	MailBox<bound_cb> mMailBox;
 	std::vector<std::weak_ptr<BaseModule>> mSubscribers;
-	BaseModule() :
-		mId(0),
-		Thread()
-	{
-	}
 public:
-	explicit BaseModule(const unsigned int&);
+	BaseModule();
 	virtual ~BaseModule();
 	template<typename T>
 	void RegisterEventHandler(typename EventType::name_type event_name, void(T::*funct_ptr)(std::shared_ptr<EventType>))
@@ -54,6 +51,7 @@ public:
 	{
 		return std::make_shared<EventType>(event_name);
 	}
+	const unsigned int& GetId() const;
 };
 
 

@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EBS-Test", "..\Users\justin lye\documents\visual studio 2017\Projects\EBS-Test\EBS-Test.vcxproj", "{BC8DC2EC-9CF1-4F54-8BCD-172B88D9887B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGL", "OpenGL\OpenGL.vcxproj", "{9726B572-FF32-4B2B-BC17-CDECD17C0510}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56282A84-71CA-408C-9089-7D4704223569} = {56282A84-71CA-408C-9089-7D4704223569}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

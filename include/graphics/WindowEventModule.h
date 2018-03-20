@@ -7,7 +7,7 @@
 class WindowEventModule : public BaseModule<WindowEvent>
 {
 public:
-	explicit WindowEventModule(const unsigned int&);
+	WindowEventModule();
 	virtual ~WindowEventModule();
 };
 
