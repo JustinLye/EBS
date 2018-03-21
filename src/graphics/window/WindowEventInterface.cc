@@ -9,12 +9,12 @@ WindowEventInterface::WindowEventInterface() :
 
 }
 
-void WindowEventInterface::ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr)
+/*void WindowEventInterface::ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr)
 {
 	// Let module (running on it's own thread) loop through
 	// subscribers sending events
 	mInstance->mModule->SendToSubscribers(event_ptr);
-}
+}*/
 
 bool WindowEventInterface::IsModuleLaunched() const
 {
@@ -25,10 +25,10 @@ void WindowEventInterface::Initialize()
 {
 	// REGISTER ALL INTERAL CALLBACKS
 	mInstance->mModule = new WindowEventModule;
-	mInstance->mModule->RegisterEventHandler(EventName::MOUSE_CLICK, &WindowEventInterface::ForwardWindowEvent);
-	mInstance->mModule->RegisterEventHandler(EventName::CURSOR_POS, &WindowEventInterface::ForwardWindowEvent);
-	mInstance->mModule->RegisterEventHandler(EventName::TEXT_INPUT, &WindowEventInterface::ForwardWindowEvent);
-	mInstance->mModule->RegisterEventHandler(EventName::KEY_PRESS, &WindowEventInterface::ForwardWindowEvent);
+	mInstance->mModule->RegisterEventHandler(EventName::MOUSE_CLICK, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
+	mInstance->mModule->RegisterEventHandler(EventName::CURSOR_POS, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
+	mInstance->mModule->RegisterEventHandler(EventName::TEXT_INPUT, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
+	mInstance->mModule->RegisterEventHandler(EventName::KEY_PRESS, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
 
 }
 
@@ -46,7 +46,7 @@ WindowEventInterface* WindowEventInterface::GetInstance()
 void WindowEventInterface::Bind(GLFWwindow* window)
 {
 	// BIND STATIC CALLBACKS
-	glfwMakeContextCurrent(window);
+	// Assumes window (context) is current
 	glfwSetMouseButtonCallback(window, WindowEventInterface::MouseClickCB);
 	glfwSetCursorPosCallback(window, WindowEventInterface::CursorPosCB);
 	glfwSetCharCallback(window, WindowEventInterface::CharInputCB);
@@ -72,10 +72,10 @@ void WindowEventInterface::Stop()
 	}
 }
 
-void WindowEventInterface::SubscribeModuleToWindowEvents(std::shared_ptr<WindowEventModule> module_ptr)
+/*void WindowEventInterface::SubscribeModuleToWindowEvents(std::shared_ptr<WindowEventModule> module_ptr)
 {
 	GetInstance()->mModule->AddSubscriber(module_ptr);
-}
+}*/
 
 void WindowEventInterface::MouseClickCB(GLFWwindow* window, int button, int action, int mods)
 {

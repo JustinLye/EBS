@@ -13,6 +13,7 @@ void AppController::Initialize()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, GLFW_RELEASE_BEHAVIOR_NONE);
 	mWindowPtr = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
 	if (mWindowPtr == NULL)
 	{
@@ -20,6 +21,7 @@ void AppController::Initialize()
 		glfwTerminate();
 		return;
 	}
+	glfwMakeContextCurrent(mWindowPtr);
 	WindowEventInterface::Start();
 	WindowEventInterface::Bind(mWindowPtr);
 	mWindowController = std::make_shared<WindowController>();
@@ -51,6 +53,16 @@ void AppController::Shutdown()
 {
 	glfwTerminate();
 	WindowEventInterface::Stop();
+}
+
+GLFWwindow* AppController::CreateSharedContext()
+{
+	if (mWindowPtr == NULL)
+	{
+		return NULL;
+	}
+	glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+	return glfwCreateWindow(800, 600, "Hidden window", NULL, mWindowPtr);
 }
 
 GLFWwindow* AppController::GetWindowPtr()

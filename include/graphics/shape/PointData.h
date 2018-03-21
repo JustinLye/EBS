@@ -12,11 +12,14 @@ protected:
 	unsigned int mLength;
 public:
 	PointData();
+	virtual ~PointData();
+
 	virtual void SetPointData(T*, const unsigned int&);
+
 	std::shared_ptr<T> DataPtr();
 	unsigned int Length();
 	unsigned int Size();
-	virtual ~PointData();
+	
 };
 
 template<class T>

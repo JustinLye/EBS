@@ -30,7 +30,9 @@ protected:
 	
 	WindowEventInterface();
 	
-	void ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr);
+	//void ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr);
+	template<class T>
+	void ForwardWindowEvent(std::shared_ptr<T>);
 	bool IsModuleLaunched() const;
 	static void Initialize(); // register callbacks etc.
 
@@ -39,15 +41,35 @@ public:
 	static void Bind(GLFWwindow*);
 	static void Start();
 	static void Stop();
-	static void SubscribeModuleToWindowEvents(std::shared_ptr<WindowEventModule>);
+	//static void SubscribeModuleToWindowEvents(std::shared_ptr<WindowEventModule>);
+	template<class T>
+	static void SubscribeModuleToWindowEvents(std::shared_ptr<BaseModule<T>>);
 	static void MouseClickCB(GLFWwindow*, int, int, int);
 	static void CursorPosCB(GLFWwindow*, double, double);
 	static void CursorEnterCB(GLFWwindow*, int);
 	static void MouseScrollCB(GLFWwindow*, double, double);
 	static void CharInputCB(GLFWwindow*, unsigned int);
 	static void KeyPressCB(GLFWwindow*, int, int, int, int);
-	
+	template<class T>
+	static void SendOneOffEvent(std::shared_ptr<T> event_ptr);
 };
 
+
+template<class T>
+void WindowEventInterface::ForwardWindowEvent(std::shared_ptr<T> event_ptr)
+{
+	mInstance->mModule->SendToSubscribers(event_ptr);
+}
+template<class T>
+void WindowEventInterface::SendOneOffEvent(std::shared_ptr<T> event_ptr)
+{
+	std::cout << __FUNCTION__ << ' ' << __LINE__ << '\n';
+	GetInstance()->mModule->SendToSubscribers(event_ptr);
+}
+template<class T>
+void WindowEventInterface::SubscribeModuleToWindowEvents(std::shared_ptr<BaseModule<T>> module_ptr)
+{
+	GetInstance()->mModule->AddSubscriber(module_ptr);
+}
 
 #endif

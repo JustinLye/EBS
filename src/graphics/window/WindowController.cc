@@ -6,7 +6,7 @@ WindowController::WindowController() :
 	mModule(std::make_shared<WindowEventModule>())
 {
 	mEventInterface = WindowEventInterface::GetInstance();
-	WindowEventInterface::SubscribeModuleToWindowEvents(mModule);
+	WindowEventInterface::SubscribeModuleToWindowEvents<WindowEvent>(mModule);
 	mModule->RegisterEventHandler(EventName::KEY_PRESS, &WindowController::HandleKeyPress);
 	mModule->Launch();
 }

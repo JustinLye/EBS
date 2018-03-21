@@ -9,3 +9,5 @@ lib/*
 *.tlog
 Debug/*
 *Debug/*
+*.idb
+*.pdb

@@ -13,6 +13,7 @@ namespace
 		{ KEY_PRESS, {"Key","Scancode","Action","Mods"}, nullptr},
 		{ MOUSE_SCROLL, {"Xoffset", "Yoffset"}, nullptr},
 		{ CURSOR_ENTER, {"CursorEntered"}, nullptr},
+		{ MAKE_CONTEXT_CURRENT, {""}, nullptr },
 		{ MAX_WINDOW_EVENT_NUM, {""}, nullptr }
 	};
 };

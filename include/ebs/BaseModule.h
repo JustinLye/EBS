@@ -44,6 +44,17 @@ public:
 		
 		mEventHandlerMap[event_name] = std::make_shared<CallBack<void, BaseModule<EventType>, std::shared_ptr<EventType>>>(reinterpret_cast<void(BaseModule<EventType>::*)(std::shared_ptr<EventType>)>(funct_ptr), this);
 	}
+	template<typename T, class OtherEventType>
+	void RegisterEventHandler(typename OtherEventType::name_type event_name, void(T::*funct_ptr)(std::shared_ptr<OtherEventType>))
+	{
+		auto handler = mEventHandlerMap.find(event_name);
+		if (handler != mEventHandlerMap.end() && event_name != EventName::SHUTDOWNEVENT)
+		{
+			throw std::runtime_error(APP_ERROR_MESSAGE("Attempted to register for the same event twice"));
+		}
+
+		mEventHandlerMap[event_name] = std::make_shared<CallBack<void, BaseModule<OtherEventType>, std::shared_ptr<OtherEventType>>>(reinterpret_cast<void(BaseModule<EventType>::*)(std::shared_ptr<OtherEventType>)>(funct_ptr), this);
+	}
 	virtual void AddEvent(event_ptr);
 	virtual void AddSubscriber(std::shared_ptr<BaseModule>);
 	virtual void SendToSubscribers(event_ptr);
