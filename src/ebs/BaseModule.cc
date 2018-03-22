@@ -48,6 +48,7 @@ void BaseModule::EventLoop()
 	{
 		std::lock_guard<std::mutex> locker(mUpdateStateMtx);
 		mModuleState = MODULE_IS_READY;
+		mUpdateStateCond.notify_all();
 	}
 	while (!mShutdown)
 	{
@@ -141,11 +142,10 @@ void BaseModule::AddEvent(BaseModule::event_ptr event_item)
 			not added. Also, consider making the timeout period configurable to
 			the module or add it as an optional parameter or both.
 		 */
-
 		std::unique_lock<std::mutex> locker(mUpdateStateMtx);
 		while (mModuleState != MODULE_IS_READY && !mShutdown)
 		{
-			auto timeout = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(1000);
+			auto timeout = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(10000);
 			if (mUpdateStateCond.wait_until(locker, timeout) == std::cv_status::timeout)
 			{
 				std::cout << INFO_MESSAGE("AddEvent() timed out waiting on module to become ready") << '\n';
