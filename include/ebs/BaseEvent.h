@@ -6,91 +6,35 @@
 #include<vector>
 #include<boost/lexical_cast.hpp>
 #include"util/UtilityDefs.h"
+#include"ebs/EventName.cc"
 
 //////////////////////////////////////////////
-///\ class CallBack
-///\ brief Provides container for member
-///  function calls that take a single argument
+///\ class BaseEvent
+///\ brief Generic container used to pass information from 
+///  one event module to the next
 //////////////////////////////////////////////
 
-template<typename NameType>
 class BaseEvent
 {
-protected:
-	NameType mName;
-	std::vector<std::string> mFieldValues;
-	virtual std::unordered_map<NameType, int> GetRangeMap() = 0;
-	int GetFieldRange(const NameType& event_name)
-	{
-		std::unordered_map<NameType, int> range_map = GetRangeMap();
-		auto range = range_map.find(event_name);
-		if (range != range_map.end())
-		{
-			return range->second;
-		} else
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE("Unknown event name"));
-		}
-	}
 public:
-	BaseEvent(const NameType& event_name) :
-		mName(event_name)
-	{
-	}
-	virtual ~BaseEvent() {}
-	void Set(const NameType& field_name, const std::string& field_value)
-	{
-		try
-		{
-			mFieldValues.at(field_name - mName - 1) = field_value;
-		} catch (std::exception& error)
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE(error.what()));
-		}
-	}
+	using name_t = EventName::event_name_t;
+protected:
+	name_t mName;
+	std::vector<std::string> mFieldValues; ///< Holds data related to event. Data is stored as string, but can be cast to other types when retreived with Get()
+	std::unordered_map<name_t, int> GetRangeMap(); ///< Maps each event "name" to range of event "data elements"
+	int GetFieldRange(const name_t&); ///< Used to initialize mFieldValues.
+
+public:
+	BaseEvent(const name_t&); ///< Constructor that takes event name
+	virtual ~BaseEvent(); ///< Destructor
+	const name_t& GetName() const; ///< Return name of event
+	void Set(const BaseEvent::name_t&, const std::string& field_value); ///< Set value of field using string
+	std::string Get(const BaseEvent::name_t&) const; ///< Get value of field as string
 	template<typename T>
-	void Set(const NameType& field_name, const T& field_value)
-	{
-		try
-		{
-			Set(field_name, boost::lexical_cast<std::string>(field_value));
-		} catch (boost::bad_lexical_cast& error)
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE(error.what()));
-		}
-	}
-	std::string Get(const NameType& field_name) const
-	{
-		try
-		{
-			return mFieldValues.at(field_name - mName - 1);
-		} catch (std::exception& error)
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE(error.what()));
-		} catch (...)
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE("Unknown error occurred."));
-		}
-	}
+	void Set(const BaseEvent::name_t&, const T&); ///< Set value of field using data of type T
 	template<typename R>
-	R Get(const NameType& field_name) const
-	{
-		try
-		{
-			std::string value = mFieldValues.at(field_name - mName - 1);
-			return boost::lexical_cast<R>(value);
-		} catch (std::exception& error)
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE(error.what()));
-		} catch (...)
-		{
-			throw std::runtime_error(APP_ERROR_MESSAGE("Unknown error occurred."));
-		}
-	}
-	NameType GetName() const
-	{
-		return mName;
-	}
+	R Get(const BaseEvent::name_t&) const; ///< Get value of field as return type R
+	
 };
 
 #ifndef BASE_EVENT_CC_INCLUDED

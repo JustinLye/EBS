@@ -2,10 +2,11 @@
 
 namespace {
 using namespace EventName;
-	EventNameData gEventNames[] =
+	EventNameData gEventData[] =
 	{
 		{ ERROREVENT, {"ErrorEvent", "<What>%s</What>\n"}},
 		{ SHUTDOWNEVENT, {""}},
+		{ DEFAULT_EVENT, {""}},
 		{ MAX_EVENT_NUMBER, {""}}
 	};
 }

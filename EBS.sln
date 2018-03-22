@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EBS", "EBS.vcxproj", "{56282A84-71CA-408C-9089-7D4704223569}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EBS-Test", "..\Users\justin lye\documents\visual studio 2017\Projects\EBS-Test\EBS-Test.vcxproj", "{BC8DC2EC-9CF1-4F54-8BCD-172B88D9887B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{87CD7C06-7D29-4A12-966F-556A9A16949B} = {87CD7C06-7D29-4A12-966F-556A9A16949B}
+		{0E6FBF08-B2D7-4D39-9F46-EDB1D9DFF1C4} = {0E6FBF08-B2D7-4D39-9F46-EDB1D9DFF1C4}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGL", "OpenGL\OpenGL.vcxproj", "{9726B572-FF32-4B2B-BC17-CDECD17C0510}"
 	ProjectSection(ProjectDependencies) = postProject
