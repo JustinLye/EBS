@@ -2,20 +2,21 @@
 #define BASE_SHAPE_HEADER_INCLUDED
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
+#include<mutex>
 #include"graphics/shape/PointData.h"
  
 class BaseShape :
 	public PointData<float>
 {
 protected:
-	GLuint VAO;
-	GLuint VBO;
+	GLuint mVBO;
+	GLuint mAttribArrayIndex;
 	virtual void Buffer();
 	std::mutex mUpdateMtx;
 public:
 	BaseShape();
 	virtual ~BaseShape();
-	virtual void Initialize();
+	virtual void Initialize(GLuint, GLuint = 0);
 	virtual void Draw();
 	virtual void Scale(float);
 	virtual void Shutdown();
@@ -23,16 +24,15 @@ public:
 
 void BaseShape::Buffer()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, mSize, mDataPtr.get(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	std::cout << "Thread: " << std::this_thread::get_id() << ' ' << __FUNCTION__ << '\n';
+	glBufferData(GL_ARRAY_BUFFER, mSize, mDataPtr.get(), GL_STATIC_DRAW);	
 }
 
 
 BaseShape::BaseShape() :
 	PointData<float>(),
-	VAO(0),
-	VBO(0)
+	mVBO(0),
+	mAttribArrayIndex(0)
 {
 
 }
@@ -42,27 +42,39 @@ BaseShape::~BaseShape()
 
 }
 
-void BaseShape::Initialize()
+void BaseShape::Initialize(GLuint VBO, GLuint AttribArrayIndex)
 {
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	mVBO = VBO;
 	Buffer();
+
+	
 }
 
 void BaseShape::Scale(float pct)
 {
+	std::cout << "Thread: " << std::this_thread::get_id() << ' ' << __FUNCTION__ << '\n';
 	std::lock_guard<std::mutex> locker(mUpdateMtx);
 	float scaler = 1.0f + pct;
 	for (unsigned int i = 0; i < mLength; ++i)
 	{
 		mDataPtr.get()[i] *= scaler;
 	}
+	Buffer();
 }
 
 void BaseShape::Draw()
 {
+	std::cout << "Thread: " << std::this_thread::get_id() << ' ' << __FUNCTION__ << '\n';
 	std::lock_guard<std::mutex> locker(mUpdateMtx);
+	std::cout << "[";
+	for (int i = 0; i < mLength-1; ++i)
+	{
+		std::cout << mDataPtr.get()[i] << ',';
+	}
+	std::cout << mDataPtr.get()[mLength-1] << "]\n";
+	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void BaseShape::Shutdown()

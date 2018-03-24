@@ -1,36 +1,36 @@
 #include"graphics/window/WindowEvent.h"
 
-WindowEvent::WindowEvent(const EventName::window_event_name_t& event_name, GLFWwindow* window) :
-	BaseEvent<EventName::window_event_name_t>(event_name),
+//////////////////////////////////////////////////////////////////////
+///\ fn WindowEvent::WindowEvent(const WindowEvent::name_t&, GLFWindow* window)
+///\ brief Constructor
+///\ author Justin Lye
+///\ date 03/22/2018
+//////////////////////////////////////////////////////////////////////
+
+WindowEvent::WindowEvent(const WindowEvent::name_t& event_name, GLFWwindow* window) :
+	BaseEvent(event_name),
 	mWindow(window)
 {
-	mFieldValues = std::vector<std::string>(GetFieldRange(event_name), "");
+
 }
 
-/*WindowEvent::WindowEvent(const EventName::window_event_name_t& event_name, GLFWwindow* window) :
-	BaseEvent<EventName::window_event_name_t>()
-{
-	mName = event_name;
-	mFieldValues = std::vector<std::string>(GetFieldRange(event_name), "");
-	mWindow = window;
-}*/
 
-std::unordered_map<EventName::window_event_name_t, int> WindowEvent::GetRangeMap()
-{
-	std::unordered_map<EventName::window_event_name_t, int> result;
-	for (unsigned int i = 0; gWindowEventData[i].mName != EventName::MAX_WINDOW_EVENT_NUM; ++i)
-	{
-		result[gWindowEventData[i].mName] = gWindowEventData[i + 1].mName - gWindowEventData[i].mName - 1;
-	}
-	return result;
-}
+
+//////////////////////////////////////////////////////////////////////
+///\ fn WindowEvent::GetWindowPtr()
+///\ brief Get the context this event is related to 
+///\ returns pointer to GLFWwindow
+///\ author Justin Lye
+///\ date 03/22/2018
+//////////////////////////////////////////////////////////////////////
 
 GLFWwindow* WindowEvent::GetWindowPtr()
 {
 	return mWindow;
 }
 
-std::shared_ptr<WindowEvent> MakeWindowEventPtr(const EventName::window_event_name_t& event_name, GLFWwindow* window)
+
+std::shared_ptr<WindowEvent> WindowEvent::MakeWindowEventPtr(const WindowEvent::name_t& event_name, GLFWwindow* window)
 {
 	return std::make_shared<WindowEvent>(event_name, window);
 }

@@ -60,6 +60,8 @@ public:
 
 	template<class T>
 	void RegisterEventHandler(const name_t&, void(T::*funct_ptr)(event_ptr));
+	template<class T, class E>
+	void RegisterEventHandler(const name_t&, void(T::*funct_ptr)(std::shared_ptr<E>));
 
 	static event_ptr MakeEventPtr(const name_t&);
 };

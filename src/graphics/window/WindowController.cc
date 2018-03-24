@@ -2,20 +2,22 @@
 
 
 WindowController::WindowController() :
-	WindowEventModule(),
-	mModule(std::make_shared<WindowEventModule>())
+	BaseModule(),
+	mModule(std::make_shared<BaseModule>())
 {
+	std::cout << __FUNCTION__ << " Module Id " << mId << '\n';
 	mEventInterface = WindowEventInterface::GetInstance();
-	WindowEventInterface::SubscribeModuleToWindowEvents<WindowEvent>(mModule);
+	WindowEventInterface::SubscribeModuleToWindowEvents(mModule);
 	mModule->RegisterEventHandler(EventName::KEY_PRESS, &WindowController::HandleKeyPress);
 	mModule->Launch();
+	std::cout << __FUNCTION__ << " mModule Id " << mModule->GetId() << '\n';
 }
 
 WindowController::~WindowController()
 {
 	if (mModule->joinable())
 	{
-		auto event_ptr = std::make_shared<WindowEvent>(EventName::SHUTDOWN_WINDOW_EVENT, nullptr);
+		auto event_ptr = std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT);
 		mModule->AddEvent(event_ptr);
 		mModule->join();
 	}

@@ -25,6 +25,7 @@ void AppController::Initialize()
 	WindowEventInterface::Start();
 	WindowEventInterface::Bind(mWindowPtr);
 	mWindowController = std::make_shared<WindowController>();
+	std::cout << __FUNCTION__ << " mWindowController ModuleId " << mWindowController->GetId() << '\n';
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -68,4 +69,14 @@ GLFWwindow* AppController::CreateSharedContext()
 GLFWwindow* AppController::GetWindowPtr()
 {
 	return mWindowPtr;
+}
+
+void AppController::SubscribeToWindowEvents(std::shared_ptr<BaseModule> module_ptr)
+{
+	WindowEventInterface::SubscribeModuleToWindowEvents(module_ptr);
+}
+
+void AppController::SendOneOffEvent(std::shared_ptr<BaseEvent> event_ptr)
+{
+	WindowEventInterface::SendOneOffEvent(event_ptr);
 }

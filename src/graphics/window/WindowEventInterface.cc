@@ -3,10 +3,10 @@
 WindowEventInterface* WindowEventInterface::mInstance = nullptr;
 
 WindowEventInterface::WindowEventInterface() :
-	WindowEventModule(),
+	BaseModule(),
 	mModule(nullptr)
 {
-
+	std::cout << __FUNCTION__ << " Module Id " << mId << '\n';
 }
 
 /*void WindowEventInterface::ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr)
@@ -24,7 +24,7 @@ bool WindowEventInterface::IsModuleLaunched() const
 void WindowEventInterface::Initialize()
 {
 	// REGISTER ALL INTERAL CALLBACKS
-	mInstance->mModule = new WindowEventModule;
+	mInstance->mModule = new BaseModule;
 	mInstance->mModule->RegisterEventHandler(EventName::MOUSE_CLICK, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
 	mInstance->mModule->RegisterEventHandler(EventName::CURSOR_POS, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
 	mInstance->mModule->RegisterEventHandler(EventName::TEXT_INPUT, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
@@ -67,7 +67,7 @@ void WindowEventInterface::Stop()
 	if (GetInstance()->IsModuleLaunched())
 	{
 		WindowEventInterface* controller = GetInstance();
-		GetInstance()->mModule->AddEvent(std::make_shared<WindowEvent>(EventName::SHUTDOWN_WINDOW_EVENT, nullptr));
+		GetInstance()->mModule->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
 		GetInstance()->mModule->join();
 	}
 }
@@ -124,4 +124,9 @@ void WindowEventInterface::KeyPressCB(GLFWwindow* window, int key, int scancode,
 	event_ptr->Set<int>(EventName::KEY_PRESS_ACTION, action);
 	event_ptr->Set<int>(EventName::KEY_PRESS_MODS, mods);
 	mInstance->mModule->AddEvent(event_ptr);
+}
+
+void WindowEventInterface::SubscribeModuleToWindowEvents(std::shared_ptr<BaseModule> module_ptr)
+{
+	GetInstance()->mModule->AddSubscriber(module_ptr);
 }
