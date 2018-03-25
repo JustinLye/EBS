@@ -25,13 +25,10 @@ public:
 template<class T>
 void PointData<T>::Deleter(T* ptr)
 {
-	std::cout << __FUNCTION__ << ' ' << __LINE__ << '\n';
 	if (ptr != nullptr)
 	{
-		std::cout << __FUNCTION__ << ' ' << __LINE__ << '\n';
 		delete[] ptr;
 	}
-	std::cout << __FUNCTION__ << ' ' << __LINE__ << '\n';
 }
 
 template<class T>

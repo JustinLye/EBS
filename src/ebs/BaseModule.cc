@@ -125,7 +125,6 @@ unsigned int BaseModule::NextModuleId = 0;
 		mShutdown(false),
 		mModuleState(MODULE_NOT_READY)
 	{
-
 	}
 
 

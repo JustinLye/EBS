@@ -8,64 +8,129 @@
 #include"graphics/shape/BaseShape.h"
 #include"graphics/shape/ShapeEvent.h"
 #include"graphics/window/WindowBackground.h"
+#include"graphics/shape/ShapeModule.h"
 
 const char* VERT_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\core.vert";
 const char* FRAG_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\core.frag";
 const char* FRAG2_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\core2.frag";
 
 
-class TestModule :
+
+class RenderModule :
 	public BaseModule
 {
-	TestModule(const TestModule&) {}
+protected:
+	bool mRenderComplete;
+	bool mContextSwitchComplete;
+	std::mutex mRenderMtx;
+	std::mutex mContextMtx;
+	std::condition_variable mRenderCv;
+	std::condition_variable mContextCv;
+
 public:
-	BaseShape mShape;
-	bool mDrawIt;
-	TestModule() :
-		BaseModule(),
-		mDrawIt(false)
+	std::shared_ptr<ShapeModule> mShapeModule;
+	RenderModule();
+	void TakeControlOfContext(GLFWwindow*);
+	void ReleaseControlOfContext(GLFWwindow*);
+	void HandleRenderAckEvent(std::shared_ptr<BaseEvent>);
+	void HandleContextAckEvent(std::shared_ptr<BaseEvent>);
+	void Render(GLFWwindow*);
+	void AddShape(GLFWwindow*, std::shared_ptr<ShapeEvent>);
+};
+
+void RenderModule::TakeControlOfContext(GLFWwindow* window)
+{
+	std::unique_lock<std::mutex> locker(mContextMtx);
+	mContextSwitchComplete = false;
+	std::shared_ptr<WindowEvent> control_context_event_ptr = std::make_shared<WindowEvent>(EventName::RENDER_CONTEXT_CHANGE_CONTROL, window);
+	glfwMakeContextCurrent(NULL);
+	mShapeModule->AddEvent(control_context_event_ptr);
+	while (!mContextSwitchComplete)
 	{
-		std::cout << __FUNCTION__ << '\n';
-		RegisterEventHandler(EventName::KEY_PRESS, &TestModule::HandleKeyPress);
-		RegisterEventHandler(EventName::MAKE_CONTEXT_CURRENT, &TestModule::HandleContext);
-	}
-	void HandleKeyPress(std::shared_ptr<WindowEvent> event_ptr)
-	{
-		std::cout << "key: " << event_ptr->Get<int>(EventName::KEY_PRESS_KEY) << '\t' << "action: " << event_ptr->Get<int>(EventName::KEY_PRESS_ACTION) << '\n';
-		std::cout << "minus: " << GLFW_KEY_MINUS << '\n';
-		if (event_ptr->Get<int>(EventName::KEY_PRESS_KEY) == GLFW_KEY_MINUS)
-		{
-			mShape.Scale(0.10f);
-		}
-		mDrawIt = true;
-	}
-	void HandleContext(std::shared_ptr<WindowEvent> event_ptr)
-	{
-		assert(event_ptr->GetWindowPtr() != nullptr);
-		glfwMakeContextCurrent(event_ptr->GetWindowPtr());
+		mContextCv.wait(locker);
 	}
 
-	void Register()
+
+}
+
+void RenderModule::ReleaseControlOfContext(GLFWwindow* window)
+{
+	std::unique_lock<std::mutex> locker(mContextMtx);
+	mContextSwitchComplete = false;
+	std::shared_ptr<WindowEvent> release_context_event_ptr = std::make_shared<WindowEvent>(EventName::RENDER_CONTEXT_CHANGE_RELEASE, window);
+	mShapeModule->AddEvent(release_context_event_ptr);
+	while (!mContextSwitchComplete)
 	{
-		
+		mContextCv.wait(locker);
 	}
-};
+	glfwMakeContextCurrent(window);
+}
+
+RenderModule::RenderModule() :
+	BaseModule(),
+	mRenderComplete(false),
+	mContextSwitchComplete(false),
+	mShapeModule(std::make_shared<ShapeModule>())
+{
+	RegisterEventHandler(EventName::RENDER_DRAWING_COMPLETE, &RenderModule::HandleRenderAckEvent);
+	RegisterEventHandler(EventName::SHAPE_ADDSHAPE_COMPLETE, &RenderModule::HandleRenderAckEvent);
+	RegisterEventHandler(EventName::RENDER_CONTEXT_CHANGE_COMPLETE, &RenderModule::HandleContextAckEvent);
+}
+
+void RenderModule::HandleRenderAckEvent(std::shared_ptr<BaseEvent> event_ptr)
+{
+	std::unique_lock<std::mutex> locker(mRenderMtx);
+	mRenderComplete = true;
+	mRenderCv.notify_all();
+}
+
+void RenderModule::HandleContextAckEvent(std::shared_ptr<BaseEvent> event_ptr)
+{
+	std::unique_lock<std::mutex> locker(mContextMtx);
+	mContextSwitchComplete = true;
+	mContextCv.notify_all();
+}
+
+void RenderModule::Render(GLFWwindow* window)
+{
+	std::unique_lock<std::mutex> locker(mRenderMtx);
+	mRenderComplete = false;
+	TakeControlOfContext(window);
+	std::shared_ptr<BaseEvent> draw_event_ptr = std::make_shared<BaseEvent>(EventName::RENDER_DRAW);
+	mShapeModule->AddEvent(draw_event_ptr);
+	while (!mRenderComplete)
+	{
+		mRenderCv.wait(locker);
+	}
+	ReleaseControlOfContext(window);
+	
+}
+
+void RenderModule::AddShape(GLFWwindow* window, std::shared_ptr<ShapeEvent> event_ptr)
+{
+	std::unique_lock<std::mutex> locker(mRenderMtx);
+	mRenderComplete = false;
+	TakeControlOfContext(window);
+	mShapeModule->AddEvent(event_ptr);
+	while (!mRenderComplete)
+	{
+		mRenderCv.wait(locker);
+	}
+	ReleaseControlOfContext(window);
+	
+}
 
 
 int CreateShaderProg(const char*, const char*);
 int main(int argc, char* argv)
 {
-	std::cout << "Main Thread Id " << std::this_thread::get_id() << '\n';
 	AppController app;
 	app.Initialize();
 	GLFWwindow* window = app.GetWindowPtr();
-	GLFWwindow* shared_window = app.CreateSharedContext();
-	int shader_prog, shader2_prog;
+	int shader_prog;
 	try
 	{
 		shader_prog = CreateShaderProg(VERT_SHADER_PATH, FRAG_SHADER_PATH);
-		shader2_prog = CreateShaderProg(VERT_SHADER_PATH, FRAG2_SHADER_PATH);
-
 	}
 	catch (std::exception& error)
 	{
@@ -83,82 +148,40 @@ int main(int argc, char* argv)
 		0.4f, 0.2f, 0.0f,
 		0.65f, 0.9f, 0.0f
 	};
-	std::shared_ptr<TestModule> test_module = std::make_shared <TestModule>();
-	test_module->Launch();
-	std::cout << "test_module id " << test_module->GetId() << '\n';
-	BaseShape point_data;
 	WindowBackground window_back(0.2f, 0.3f, 0.3f, 1.0f);
-	point_data.SetPointData(verts2, 9);
-	test_module->mShape.SetPointData(verts, 9);
-	GLuint vao1, vao2, vbo1, vbo2;
-	glGenVertexArrays(1, &vao1);
-	glGenVertexArrays(1, &vao2);
-	glGenBuffers(1, &vbo1);
-	glGenBuffers(1, &vbo2);
-	glBindVertexArray(vao1);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-	point_data.Initialize(vbo1);
+	//std::shared_ptr<ShapeModule> shape_module = std::make_shared<ShapeModule>();
+	
+	GLuint vao, vbo;
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindVertexArray(vao2);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-	test_module->mShape.Initialize(vbo2);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	app.SubscribeToWindowEvents(test_module);
-	WindowEventInterface::SendOneOffEvent<WindowEvent>(std::make_shared<WindowEvent>(EventName::MAKE_CONTEXT_CURRENT, shared_window));
-	auto start_time = std::chrono::high_resolution_clock::now();
+	std::shared_ptr<RenderModule> render_module = std::make_shared<RenderModule>();
+	render_module->mShapeModule->AddSubscriber(render_module);
+	render_module->mShapeModule->Launch();
+	render_module->Launch();
+	std::shared_ptr<ShapeEvent> shape_event = std::make_shared<ShapeEvent>(EventName::SHAPE_ADDSHAPE, verts);
+	shape_event->Set<GLuint>(EventName::SHAPE_ADDSHAPE_VAO, vao);
+	shape_event->Set<GLuint>(EventName::SHAPE_ADDSHAPE_VBO, vbo);
+	shape_event->Set<unsigned int>(EventName::SHAPE_ADDSHAPE_DATA_LENGTH, 9);
+	render_module->AddShape(window, shape_event);
+	//shape_module->HandleAddShapeEvent(shape_event);
 
 
-	/*
-		You have 2 options
-		(1) [prefered] learn about shared objects
-		(2) mangage context release and binding between different threads, which means you'll have a linear event loop because you have to wait on each thread to finish with the context.
-	*/
-	bool scaleit = true;
 	while (!glfwWindowShouldClose(window))
 	{
-		if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start_time).count() > 4)
-		{
-			start_time = std::chrono::high_resolution_clock::now();
-			//point_data.Scale(-0.10f);
-			test_module->mDrawIt = false;
-			scaleit = true;
-		}
 		window_back.Draw();
-		glBindVertexArray(vao2);
 		glUseProgram(shader_prog);
-		if (test_module->mDrawIt)
-		{
-			/*if (scaleit)
-			{
-				test_module->mShape.Scale(0);
-				scaleit = false;
-			}*/
-			//test_module->mDrawIt = false;
-			glfwMakeContextCurrent(NULL);
-			test_module->AddEvent(std::make_shared<WindowEvent>(EventName::MAKE_CONTEXT_CURRENT, app.GetWindowPtr()));
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			test_module->mShape.Draw();
-			test_module->AddEvent(std::make_shared<WindowEvent>(EventName::MAKE_CONTEXT_CURRENT, shared_window));
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			glfwMakeContextCurrent(app.GetWindowPtr());
-		}
-		glUseProgram(shader2_prog);
-		glBindVertexArray(vao1);
-		//point_data.Draw();
-		glBindVertexArray(0);
+		render_module->Render(window);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-	point_data.Shutdown();
-	test_module->mShape.Shutdown();
-	test_module->AddEvent(std::make_shared<WindowEvent>(EventName::SHUTDOWNEVENT, app.GetWindowPtr()));
-	test_module->join();
+	render_module->mShapeModule->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
+	render_module->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
+	render_module->mShapeModule->join();
+	render_module->join();
 	app.Shutdown();
 	
 	return EXIT_SUCCESS;

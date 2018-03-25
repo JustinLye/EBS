@@ -14,9 +14,15 @@ using namespace EventName;
 		{ KEY_PRESS,{ "Key","Scancode","Action","Mods" }},
 		{ MOUSE_SCROLL,{ "Xoffset", "Yoffset" }},
 		{ CURSOR_ENTER,{ "CursorEntered" }},
-		{ MAKE_CONTEXT_CURRENT,{ "" }},
 		{ SHAPE_INITIALIZE,{ "" } },
 		{ SHAPE_SHUTDOWN,{ "" } },
+		{ SHAPE_ADDSHAPE, {"VAO", "VBO", "Length"}},
+		{ SHAPE_ADDSHAPE_COMPLETE, {""}},
+		{ RENDER_DRAW, {""}},
+		{ RENDER_DRAWING_COMPLETE, {"ModuleId"}},
+		{ RENDER_CONTEXT_CHANGE_RELEASE, {""}},
+		{ RENDER_CONTEXT_CHANGE_CONTROL, {""}},
+		{ RENDER_CONTEXT_CHANGE_COMPLETE, {"RenderContextChangeWasReleaseType"}},
 		{ MAX_EVENT_NUMBER, {""}}
 	};
 }

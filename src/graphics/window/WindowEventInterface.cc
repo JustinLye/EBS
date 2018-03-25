@@ -6,7 +6,6 @@ WindowEventInterface::WindowEventInterface() :
 	BaseModule(),
 	mModule(nullptr)
 {
-	std::cout << __FUNCTION__ << " Module Id " << mId << '\n';
 }
 
 /*void WindowEventInterface::ForwardWindowEvent(std::shared_ptr<WindowEvent> event_ptr)

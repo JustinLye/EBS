@@ -5,12 +5,10 @@ WindowController::WindowController() :
 	BaseModule(),
 	mModule(std::make_shared<BaseModule>())
 {
-	std::cout << __FUNCTION__ << " Module Id " << mId << '\n';
 	mEventInterface = WindowEventInterface::GetInstance();
 	WindowEventInterface::SubscribeModuleToWindowEvents(mModule);
 	mModule->RegisterEventHandler(EventName::KEY_PRESS, &WindowController::HandleKeyPress);
 	mModule->Launch();
-	std::cout << __FUNCTION__ << " mModule Id " << mModule->GetId() << '\n';
 }
 
 WindowController::~WindowController()

@@ -13,7 +13,7 @@ void AppController::Initialize()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, GLFW_RELEASE_BEHAVIOR_NONE);
+	//glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, GLFW_RELEASE_BEHAVIOR_NONE);
 	mWindowPtr = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
 	if (mWindowPtr == NULL)
 	{
@@ -25,7 +25,6 @@ void AppController::Initialize()
 	WindowEventInterface::Start();
 	WindowEventInterface::Bind(mWindowPtr);
 	mWindowController = std::make_shared<WindowController>();
-	std::cout << __FUNCTION__ << " mWindowController ModuleId " << mWindowController->GetId() << '\n';
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
