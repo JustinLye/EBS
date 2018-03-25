@@ -80,9 +80,10 @@ unsigned int BaseModule::NextModuleId = 0;
 		{
 			std::lock_guard<std::mutex> locker(mUpdateStateMtx);
 			mModuleState = MODULE_NOT_READY;
+			mShutdown = true;
 		}
 		std::cout << "Shutting down. Thread id = " << std::this_thread::get_id() << '\n';
-		mShutdown = true;
+		
 
 	}
 
@@ -251,6 +252,11 @@ unsigned int BaseModule::NextModuleId = 0;
 	BaseModule::event_ptr BaseModule::MakeEventPtr(const BaseModule::name_t& event_name)
 	{
 		return std::make_shared<BaseEvent>(event_name);
+	}
+
+	bool BaseModule::IsShuttingDown() const
+	{
+		return mShutdown;
 	}
 
 #endif

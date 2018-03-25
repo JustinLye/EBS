@@ -57,6 +57,7 @@ public:
 	virtual void AddSubscriber(std::shared_ptr<BaseModule>);
 	virtual void SendToSubscribers(event_ptr);
 	const unsigned int& GetId() const;
+	bool IsShuttingDown() const;
 
 	template<class T>
 	void RegisterEventHandler(const name_t&, void(T::*funct_ptr)(event_ptr));
