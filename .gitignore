@@ -12,3 +12,4 @@ Debug/*
 *.idb
 *.pdb
 EBS-graphics-lib/Debug/*
+OpenGL/textures/*

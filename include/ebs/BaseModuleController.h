@@ -22,12 +22,10 @@ public:
 	template<class ModuleType>
 	unsigned int AddModule();
 	template<class ModuleType>
-	void LaunchModule(const unsigned int&);
-	template<class ModuleType>
 	unsigned int AddThenLaunchModule();
 
 	// Module interaction
-	void AddEvent(std::shared_ptr<BaseEvent>);
+	void AddEvent(const unsigned int&, std::shared_ptr<BaseEvent>);
 
 	template<class ModuleType, class HandlerType = ModuleType, class EventType = BaseEvent>
 	void RegisterEventHandlerForModule(
@@ -43,7 +41,7 @@ public:
 };
 
 
-#ifdef BUILD_BASE_MODULE_CONTROLLER_CC
+#ifndef BASE_MODULE_CONTROLLER_CC_INCLUDED
 #include"ebs/BaseModuleController.cc"
 #endif
 
