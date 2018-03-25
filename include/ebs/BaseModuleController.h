@@ -1,56 +1,50 @@
 #ifndef BASE_MODULE_CONTROLLER_HEADER_INCLUDED
 #define BASE_MODULE_CONTROLLER_HEADER_INCLUDED
-
+#include<map>
 #include"ebs/BaseModule.h"
 
 class BaseModuleController
 {
 protected:
-	std::shared_ptr<BaseModule> mModule;
-	
+	std::map<unsigned int, std::shared_ptr<BaseModule>> mModuleMap;
 public:
 	BaseModuleController();
 	virtual ~BaseModuleController();
-	virtual void ShutdownModule();
-	virtual void LaunchModule();
+
+	// Module creation and destruction
+	unsigned int AddModule();
+	void ShutdownModule(const unsigned int&);
+	void ShutdownModules();
+	void LaunchModule(const unsigned int&);
+	unsigned int AddThenLaunchModule();
+
+	// Template module creation and desctruction
 	template<class ModuleType>
-	void LaunchModule();
+	unsigned int AddModule();
+	template<class ModuleType>
+	void LaunchModule(const unsigned int&);
+	template<class ModuleType>
+	unsigned int AddThenLaunchModule();
+
+	// Module interaction
+	void AddEvent(std::shared_ptr<BaseEvent>);
+
+	template<class ModuleType, class HandlerType = ModuleType, class EventType = BaseEvent>
+	void RegisterEventHandlerForModule(
+		const unsigned int&,
+		const EventName::event_name_t&,
+		void(HandlerType::*funct_ptr)(std::shared_ptr<EventType>));
+
+	// Template module interaction
+	template<class ModuleType>
+	void AddSubscriber(const unsigned int&, std::shared_ptr<ModuleType>);
+	template<class ModuleType>
+	void SubscribeToModule(const unsigned int&, std::shared_ptr<ModuleType>);
 };
 
-void BaseModuleController::ShutdownModule()
-{
-	if (mModule->joinable())
-	{
-		mModule->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
-		if (mModule->joinable())
-		{
-			mModule->join();
-		}
-	}
-}
 
-BaseModuleController::BaseModuleController() :
-	mModule(std::make_shared<BaseModule>())
-{
-	
-}
-
-BaseModuleController::~BaseModuleController()
-{
-}
-
-void BaseModuleController::LaunchModule()
-{
-	mModule->Launch();
-}
-
-template<class ModuleType>
-void BaseModuleController::LaunchModule()
-{
-	std::shared_ptr<BaseModule> ptr = std::make_shared<ModuleType>();
-	mModule = std::shared_ptr<BaseModule>(ptr);
-	mModule->Launch();
-}
-
+#ifdef BUILD_BASE_MODULE_CONTROLLER_CC
+#include"ebs/BaseModuleController.cc"
+#endif
 
 #endif
