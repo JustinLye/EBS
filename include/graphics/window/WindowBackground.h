@@ -54,7 +54,7 @@ void WindowBackground::Draw()
 		mColor.mBlue,
 		mColor.mGreen,
 		mColor.mAlpha);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 }
 
 void WindowBackground::Red(float r)

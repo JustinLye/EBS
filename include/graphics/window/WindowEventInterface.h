@@ -2,7 +2,7 @@
 #define WINDOW_EVENT_INTERFACE_HEADER
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
-#include"ebs/BaseModule.h"
+#include"ebs/Module.h"
 #include"graphics/window/WindowEvent.h"
 
 /*
@@ -22,13 +22,13 @@
 */
 
 class WindowEventInterface :
-	protected BaseModule
+	protected Module
 {
 private:
 	
 protected:
 	static WindowEventInterface* mInstance;
-	BaseModule* mModule;
+	Module* mModule;
 	
 	WindowEventInterface();
 	
@@ -44,7 +44,7 @@ public:
 	static void Start();
 	static void Stop();
 	//static void SubscribeModuleToWindowEvents(std::shared_ptr<WindowEventModule>);
-	static void SubscribeModuleToWindowEvents(std::shared_ptr<BaseModule>);
+	static void SubscribeModuleToWindowEvents(std::shared_ptr<Module>);
 	static void MouseClickCB(GLFWwindow*, int, int, int);
 	static void CursorPosCB(GLFWwindow*, double, double);
 	static void CursorEnterCB(GLFWwindow*, int);

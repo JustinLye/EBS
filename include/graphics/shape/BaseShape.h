@@ -30,7 +30,7 @@ void BaseShape::Initialize(GLuint vbo)
 }
 void BaseShape::Buffer()
 {
-	glBufferData(GL_ARRAY_BUFFER, mSize, mDataPtr.get(), GL_STATIC_DRAW);
+	glNamedBufferData(mVBO, mSize, mDataPtr.get(), GL_DYNAMIC_DRAW);
 	mBufferOnNextDraw = false;
 }
 BaseShape::BaseShape() :
@@ -62,13 +62,13 @@ void BaseShape::Draw()
 {
 
 	std::lock_guard<std::mutex> locker(mUpdateMtx);
-	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, mVBO);
 	if (mBufferOnNextDraw)
 	{
 		Buffer();
 	}
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void BaseShape::Shutdown()

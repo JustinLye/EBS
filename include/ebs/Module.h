@@ -1,15 +1,15 @@
-#ifndef BASE_MODULE_HEADER_INCLUDED
-#define BASE_MODULE_HEADER_INCLUDED
+#ifndef MODULE_HEADER_INCLUDED
+#define MODULE_HEADER_INCLUDED
 
 #include"util/UtilityDefs.h"
 #include"util/Thread.h"
 #include"ebs/MailBox.h"
 #include"ebs/CallBack.h"
-#include"ebs/BaseEvent.h"
+#include"ebs/Event.h"
 
 
 ////////////////////////////////////////////////////////////////
-///\ class BaseModule
+///\ class Module
 ///\ brief Event processing mechanism.
 ///\ author Justin Lye
 ///\ date 03/21/2018
@@ -21,16 +21,16 @@ enum module_state_t : unsigned int
 	MODULE_IS_READY
 };
 
-class BaseModule :
+class Module :
 	public Thread
 {
 public:
 	// Name aliases 
-	using event_ptr = std::shared_ptr<BaseEvent>;
-	using cb = CallBack<void, BaseModule, event_ptr>;
+	using event_ptr = std::shared_ptr<Event>;
+	using cb = CallBack<void, Module, event_ptr>;
 	using cb_ptr = std::shared_ptr<cb>;
 	using bound_cb = std::pair<event_ptr, cb_ptr>;
-	using name_t = BaseEvent::name_t;
+	using name_t = Event::name_t;
 	using cb_map = std::map<name_t, cb_ptr>;
 	//using event_type = unsigned int;
 private:
@@ -48,13 +48,13 @@ protected:
 	unsigned int mId; ///< Default Id assigned to the module
 	cb_map mEventHandlerMap; ///< Maps event names to their handlers
 	MailBox<bound_cb> mMailBox; ///< Queue used to receive messages. 
-	std::vector<std::weak_ptr<BaseModule>> mSubscribers; ///< All other modules that receive notifications from this module.
+	std::vector<std::weak_ptr<Module>> mSubscribers; ///< All other modules that receive notifications from this module.
 public:
-	BaseModule(); ///< Default constructor
-	virtual ~BaseModule(); ///< Destructor
+	Module(); ///< Default constructor
+	virtual ~Module(); ///< Destructor
 
 	virtual void AddEvent(event_ptr);
-	virtual void AddSubscriber(std::shared_ptr<BaseModule>);
+	virtual void AddSubscriber(std::shared_ptr<Module>);
 	virtual void SendToSubscribers(event_ptr);
 	const unsigned int& GetId() const;
 	bool IsShuttingDown() const;
@@ -69,7 +69,7 @@ public:
 
 
 
-#ifndef BASE_MODULE_CC_INCLUDED
-#include"ebs/BaseModule.cc"
+#ifndef MODULE_CC_INCLUDED
+#include"ebs/Module.cc"
 #endif
 #endif

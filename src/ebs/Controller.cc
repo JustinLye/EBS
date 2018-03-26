@@ -1,34 +1,34 @@
-#ifndef BASE_MODULE_CONTROLLER_CC_INCLUDED
-#define BASE_MODULE_CONTROLLER_CC_INCLUDED
-#include"ebs/BaseModuleController.h"
+#ifndef CONTROLLER_CC_INCLUDED
+#define CONTROLLER_CC_INCLUDED
+#include"ebs/Controller.h"
 
-#ifdef BUILD_BASE_MODULE_CONTROLLER_CC
-BaseModuleController::BaseModuleController()
+#ifdef BUILD_CONTROLLER_CC
+Controller::Controller()
 {
 
 }
 
-BaseModuleController::~BaseModuleController()
+Controller::~Controller()
 {
 
 }
 
-unsigned int BaseModuleController::AddModule()
+unsigned int Controller::AddModule()
 {
-	std::shared_ptr<BaseModule> ptr = std::make_shared<BaseModule>();
+	std::shared_ptr<Module> ptr = std::make_shared<Module>();
 	unsigned int id = ptr->GetId();
 	mModuleMap.insert({ id, ptr });
 	return id;
 }
 
-void BaseModuleController::ShutdownModule(const unsigned int& id)
+void Controller::ShutdownModule(const unsigned int& id)
 {
 	auto module_pair = mModuleMap.find(id);
 	if (module_pair != mModuleMap.end())
 	{
 		if (module_pair->second->joinable())
 		{
-			module_pair->second->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
+			module_pair->second->AddEvent(std::make_shared<Event>(EventName::SHUTDOWNEVENT));
 			if (module_pair->second->joinable())
 			{
 				module_pair->second->join();
@@ -37,13 +37,13 @@ void BaseModuleController::ShutdownModule(const unsigned int& id)
 	}
 }
 
-void BaseModuleController::ShutdownModules()
+void Controller::ShutdownModules()
 {
 	for (auto module_pair : mModuleMap)
 	{
 		if (module_pair.second->joinable())
 		{
-			module_pair.second->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
+			module_pair.second->AddEvent(std::make_shared<Event>(EventName::SHUTDOWNEVENT));
 		}
 	}
 	for (auto module_pair : mModuleMap)
@@ -55,7 +55,7 @@ void BaseModuleController::ShutdownModules()
 	}
 }
 
-void BaseModuleController::LaunchModule(const unsigned int& id)
+void Controller::LaunchModule(const unsigned int& id)
 {
 	auto module_pair = mModuleMap.find(id);
 	if (module_pair != mModuleMap.end())
@@ -64,7 +64,7 @@ void BaseModuleController::LaunchModule(const unsigned int& id)
 	}
 }
 
-unsigned int BaseModuleController::AddThenLaunchModule()
+unsigned int Controller::AddThenLaunchModule()
 {
 	unsigned int id = AddModule();
 	LaunchModule(id);
@@ -75,16 +75,16 @@ unsigned int BaseModuleController::AddThenLaunchModule()
 #endif
 
 template<class ModuleType>
-unsigned int BaseModuleController::AddModule()
+unsigned int Controller::AddModule()
 {
-	std::shared_ptr<BaseModule> ptr = std::make_shared<ModuleType>();
+	std::shared_ptr<Module> ptr = std::make_shared<ModuleType>();
 	unsigned int id = ptr->GetId();
 	mModuleMap.insert({ id, ptr });
 	return id;
 }
 
 template<class ModuleType>
-unsigned int BaseModuleController::AddThenLaunchModule()
+unsigned int Controller::AddThenLaunchModule()
 {
 	unsigned int id = AddModule<ModuleType>();
 	LaunchModule(id);
@@ -92,9 +92,9 @@ unsigned int BaseModuleController::AddThenLaunchModule()
 }
 
 
-#ifdef BUILD_BASE_MODULE_CONTROLLER_CC
+#ifdef BUILD_CONTROLLER_CC
 
-void BaseModuleController::AddEvent(const unsigned int& id, std::shared_ptr<BaseEvent> event_ptr)
+void Controller::AddEvent(const unsigned int& id, std::shared_ptr<Event> event_ptr)
 {
 	auto module_pair = mModuleMap.find(id);
 	if (module_pair == mModuleMap.end())
@@ -108,7 +108,7 @@ void BaseModuleController::AddEvent(const unsigned int& id, std::shared_ptr<Base
 
 
 template<class ModuleType, class HandlerType, class EventType>
-void BaseModuleController::RegisterEventHandlerForModule(
+void Controller::RegisterEventHandlerForModule(
 	const unsigned int& id,
 	const EventName::event_name_t& event_name,
 	void(HandlerType::*funct_ptr)(std::shared_ptr<EventType>))
@@ -122,7 +122,7 @@ void BaseModuleController::RegisterEventHandlerForModule(
 }
 
 template<class ModuleType>
-void BaseModuleController::AddSubscriber(const unsigned int& id, std::shared_ptr<ModuleType> module_ptr)
+void Controller::AddSubscriber(const unsigned int& id, std::shared_ptr<ModuleType> module_ptr)
 {
 	auto module_pair = mModuleMap.find(id);
 	if (module_pair == mModuleMap.end())
@@ -133,14 +133,14 @@ void BaseModuleController::AddSubscriber(const unsigned int& id, std::shared_ptr
 }
 
 template<class ModuleType>
-void BaseModuleController::SubscribeToModule(const unsigned int& id, std::shared_ptr<ModuleType> module_ptr)
+void Controller::SubscribeToModule(const unsigned int& id, std::shared_ptr<ModuleType> module_ptr)
 {
 	auto module_pair = mModuleMap.find(id);
 	if (module_pair == mModuleMap.end())
 	{
 		throw std::runtime_error(APP_ERROR_MESSAGE("Module id is not mapped to this controller."));
 	}
-	std::shared_ptr<BaseModule>(module_ptr)->AddSubscriber(module_pair->second);
+	std::shared_ptr<Module>(module_ptr)->AddSubscriber(module_pair->second);
 }
 
 

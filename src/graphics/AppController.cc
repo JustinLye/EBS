@@ -10,8 +10,8 @@ AppController::AppController() :
 void AppController::Initialize()
 {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, GLFW_RELEASE_BEHAVIOR_NONE);
 	mWindowPtr = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
@@ -31,6 +31,7 @@ void AppController::Initialize()
 		return;
 	}
 	glViewport(0, 0, 800, 600);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void AppController::EventLoop()
@@ -70,12 +71,12 @@ GLFWwindow* AppController::GetWindowPtr()
 	return mWindowPtr;
 }
 
-void AppController::SubscribeToWindowEvents(std::shared_ptr<BaseModule> module_ptr)
+void AppController::SubscribeToWindowEvents(std::shared_ptr<Module> module_ptr)
 {
 	WindowEventInterface::SubscribeModuleToWindowEvents(module_ptr);
 }
 
-void AppController::SendOneOffEvent(std::shared_ptr<BaseEvent> event_ptr)
+void AppController::SendOneOffEvent(std::shared_ptr<Event> event_ptr)
 {
 	WindowEventInterface::SendOneOffEvent(event_ptr);
 }

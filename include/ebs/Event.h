@@ -1,5 +1,5 @@
-#ifndef BASE_EVENT_HEADER_INCLUDED
-#define BASE_EVENT_HEADER_INCLUDED
+#ifndef EVENT_HEADER_INCLUDED
+#define EVENT_HEADER_INCLUDED
 
 #include<memory>
 #include<unordered_map>
@@ -14,7 +14,7 @@
 ///  one event module to the next
 //////////////////////////////////////////////
 
-class BaseEvent
+class Event
 {
 public:
 	using name_t = EventName::event_name_t;
@@ -25,20 +25,20 @@ protected:
 	int GetFieldRange(const name_t&); ///< Used to initialize mFieldValues.
 
 public:
-	BaseEvent(const name_t&); ///< Constructor that takes event name
-	virtual ~BaseEvent(); ///< Destructor
+	Event(const name_t&); ///< Constructor that takes event name
+	virtual ~Event(); ///< Destructor
 	const name_t& GetName() const; ///< Return name of event
-	void Set(const BaseEvent::name_t&, const std::string& field_value); ///< Set value of field using string
-	std::string Get(const BaseEvent::name_t&) const; ///< Get value of field as string
+	void Set(const Event::name_t&, const std::string& field_value); ///< Set value of field using string
+	std::string Get(const Event::name_t&) const; ///< Get value of field as string
 	template<typename T>
-	void Set(const BaseEvent::name_t&, const T&); ///< Set value of field using data of type T
+	void Set(const Event::name_t&, const T&); ///< Set value of field using data of type T
 	template<typename R>
-	R Get(const BaseEvent::name_t&) const; ///< Get value of field as return type R
+	R Get(const Event::name_t&) const; ///< Get value of field as return type R
 	
 };
 
-#ifndef BASE_EVENT_CC_INCLUDED
-#include"ebs/BaseEvent.cc"
+#ifndef EVENT_CC_INCLUDED
+#include"ebs/Event.cc"
 #endif
 
 #endif

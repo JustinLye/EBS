@@ -3,7 +3,7 @@
 WindowEventInterface* WindowEventInterface::mInstance = nullptr;
 
 WindowEventInterface::WindowEventInterface() :
-	BaseModule(),
+	Module(),
 	mModule(nullptr)
 {
 }
@@ -23,7 +23,7 @@ bool WindowEventInterface::IsModuleLaunched() const
 void WindowEventInterface::Initialize()
 {
 	// REGISTER ALL INTERAL CALLBACKS
-	mInstance->mModule = new BaseModule;
+	mInstance->mModule = new Module;
 	mInstance->mModule->RegisterEventHandler(EventName::MOUSE_CLICK, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
 	mInstance->mModule->RegisterEventHandler(EventName::CURSOR_POS, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
 	mInstance->mModule->RegisterEventHandler(EventName::TEXT_INPUT, &WindowEventInterface::ForwardWindowEvent<WindowEvent>);
@@ -66,7 +66,7 @@ void WindowEventInterface::Stop()
 	if (GetInstance()->IsModuleLaunched())
 	{
 		WindowEventInterface* controller = GetInstance();
-		GetInstance()->mModule->AddEvent(std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT));
+		GetInstance()->mModule->AddEvent(std::make_shared<Event>(EventName::SHUTDOWNEVENT));
 		GetInstance()->mModule->join();
 	}
 }
@@ -125,7 +125,7 @@ void WindowEventInterface::KeyPressCB(GLFWwindow* window, int key, int scancode,
 	mInstance->mModule->AddEvent(event_ptr);
 }
 
-void WindowEventInterface::SubscribeModuleToWindowEvents(std::shared_ptr<BaseModule> module_ptr)
+void WindowEventInterface::SubscribeModuleToWindowEvents(std::shared_ptr<Module> module_ptr)
 {
 	GetInstance()->mModule->AddSubscriber(module_ptr);
 }

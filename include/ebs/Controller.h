@@ -1,15 +1,15 @@
-#ifndef BASE_MODULE_CONTROLLER_HEADER_INCLUDED
-#define BASE_MODULE_CONTROLLER_HEADER_INCLUDED
+#ifndef CONTROLLER_HEADER_INCLUDED
+#define CONTROLLER_HEADER_INCLUDED
 #include<map>
-#include"ebs/BaseModule.h"
+#include"ebs/Module.h"
 
-class BaseModuleController
+class Controller
 {
 protected:
-	std::map<unsigned int, std::shared_ptr<BaseModule>> mModuleMap;
+	std::map<unsigned int, std::shared_ptr<Module>> mModuleMap;
 public:
-	BaseModuleController();
-	virtual ~BaseModuleController();
+	Controller();
+	virtual ~Controller();
 
 	// Module creation and destruction
 	unsigned int AddModule();
@@ -25,9 +25,9 @@ public:
 	unsigned int AddThenLaunchModule();
 
 	// Module interaction
-	void AddEvent(const unsigned int&, std::shared_ptr<BaseEvent>);
+	void AddEvent(const unsigned int&, std::shared_ptr<Event>);
 
-	template<class ModuleType, class HandlerType = ModuleType, class EventType = BaseEvent>
+	template<class ModuleType, class HandlerType = ModuleType, class EventType = Event>
 	void RegisterEventHandlerForModule(
 		const unsigned int&,
 		const EventName::event_name_t&,
@@ -41,8 +41,8 @@ public:
 };
 
 
-#ifndef BASE_MODULE_CONTROLLER_CC_INCLUDED
-#include"ebs/BaseModuleController.cc"
+#ifndef CONTROLLER_CC_INCLUDED
+#include"ebs/Controller.cc"
 #endif
 
 #endif

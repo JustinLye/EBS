@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 WindowEvent::WindowEvent(const WindowEvent::name_t& event_name, GLFWwindow* window) :
-	BaseEvent(event_name),
+	Event(event_name),
 	mWindow(window)
 {
 

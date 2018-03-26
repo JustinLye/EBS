@@ -1,9 +1,9 @@
-#ifndef BASE_EVENT_CC_INCLUDED
-#define BASE_EVENT_CC_INCLUDED
-#include"ebs/BaseEvent.h"
+#ifndef EVENT_CC_INCLUDED
+#define EVENT_CC_INCLUDED
+#include"ebs/Event.h"
 
-#ifdef BUILD_BASE_EVENT_CC
-std::unordered_map<BaseEvent::name_t, int> BaseEvent::GetRangeMap()
+#ifdef BUILD_EVENT_CC
+std::unordered_map<Event::name_t, int> Event::GetRangeMap()
 {
 	std::unordered_map<name_t, int> result;
 	for (unsigned int i = 0; gEventData[i].mName != name_t::MAX_EVENT_NUMBER; ++i)
@@ -13,7 +13,7 @@ std::unordered_map<BaseEvent::name_t, int> BaseEvent::GetRangeMap()
 	return result;
 }
 
-int BaseEvent::GetFieldRange(const BaseEvent::name_t& event_name)
+int Event::GetFieldRange(const Event::name_t& event_name)
 {
 	std::unordered_map<name_t, int> range_map = GetRangeMap();
 	auto range = range_map.find(event_name);
@@ -25,23 +25,23 @@ int BaseEvent::GetFieldRange(const BaseEvent::name_t& event_name)
 		throw std::runtime_error(APP_ERROR_MESSAGE("Unknown event name"));
 	}
 }
-BaseEvent::BaseEvent(const BaseEvent::name_t& event_name) :
+Event::Event(const Event::name_t& event_name) :
 	mName(event_name)
 {
 		mFieldValues = std::vector<std::string>(GetFieldRange(event_name), "");
 }
 
-BaseEvent::~BaseEvent()
+Event::~Event()
 {
 
 }
 
-const BaseEvent::name_t& BaseEvent::GetName() const
+const Event::name_t& Event::GetName() const
 {
 	return mName;
 }
 
-void BaseEvent::Set(const BaseEvent::name_t& field_name, const std::string& field_value)
+void Event::Set(const Event::name_t& field_name, const std::string& field_value)
 {
 	try
 	{
@@ -52,7 +52,7 @@ void BaseEvent::Set(const BaseEvent::name_t& field_name, const std::string& fiel
 	}
 }
 
-std::string BaseEvent::Get(const BaseEvent::name_t& field_name) const
+std::string Event::Get(const Event::name_t& field_name) const
 {
 	try
 	{
@@ -69,7 +69,7 @@ std::string BaseEvent::Get(const BaseEvent::name_t& field_name) const
 #endif
 
 template<typename T>
-void BaseEvent::Set(const BaseEvent::name_t& field_name, const T& field_value)
+void Event::Set(const Event::name_t& field_name, const T& field_value)
 {
 	try
 	{
@@ -81,7 +81,7 @@ void BaseEvent::Set(const BaseEvent::name_t& field_name, const T& field_value)
 }
 
 template<typename R>
-R BaseEvent::Get(const BaseEvent::name_t& field_name) const
+R Event::Get(const Event::name_t& field_name) const
 {
 	try
 	{

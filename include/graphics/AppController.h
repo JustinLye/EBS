@@ -17,8 +17,8 @@ public:
 	void Shutdown();
 	GLFWwindow* CreateSharedContext();
 	GLFWwindow* GetWindowPtr();
-	void SubscribeToWindowEvents(std::shared_ptr<BaseModule>);
-	void SendOneOffEvent(std::shared_ptr<BaseEvent>);
+	void SubscribeToWindowEvents(std::shared_ptr<Module>);
+	void SendOneOffEvent(std::shared_ptr<Event>);
 };
 
 

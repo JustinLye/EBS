@@ -4,7 +4,7 @@
 #include"ebs/BaseEvent.h"
 
 class ShapeEvent :
-	public BaseEvent
+	public Event
 {
 public:
 	ShapeEvent(const name_t&, float* = nullptr);

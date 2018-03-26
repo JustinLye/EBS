@@ -1,10 +1,10 @@
 #ifndef  WINDOW_EVENT_HEADER_INCLUDED
 #define WINDOW_EVENT_HEADER_INCLUDED
 
-#include"ebs/BaseEvent.h"
+#include"ebs/Event.h"
 struct GLFWwindow;
 class WindowEvent :
-	public BaseEvent
+	public Event
 {
 public:
 	using name_t = EventName::event_name_t;

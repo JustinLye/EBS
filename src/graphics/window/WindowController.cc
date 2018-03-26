@@ -2,8 +2,8 @@
 
 
 WindowController::WindowController() :
-	BaseModule(),
-	mModule(std::make_shared<BaseModule>())
+	Module(),
+	mModule(std::make_shared<Module>())
 {
 	mEventInterface = WindowEventInterface::GetInstance();
 	WindowEventInterface::SubscribeModuleToWindowEvents(mModule);
@@ -15,7 +15,7 @@ WindowController::~WindowController()
 {
 	if (mModule->joinable())
 	{
-		auto event_ptr = std::make_shared<BaseEvent>(EventName::SHUTDOWNEVENT);
+		auto event_ptr = std::make_shared<Event>(EventName::SHUTDOWNEVENT);
 		mModule->AddEvent(event_ptr);
 		mModule->join();
 	}
