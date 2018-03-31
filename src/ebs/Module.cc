@@ -211,9 +211,27 @@ unsigned int Module::NextModuleId = 0;
 
 	void Module::AddSubscriber(std::shared_ptr<Module> subscriber)
 	{
-		mSubscribers.push_back(subscriber);
+		std::lock_guard<std::mutex> locker(mSubscriberMtx);
+		auto sub_pair = mSubscribers.find(subscriber->GetId());
+		if (sub_pair != mSubscribers.end())
+		{
+			//Handle double subscription
+			return;
+		}
+		mSubscribers.insert({ subscriber->GetId(), subscriber });
 	}
 
+	void Module::RemoveSubscriber(std::shared_ptr<Module> subscriber)
+	{
+		std::lock_guard<std::mutex> locker(mSubscriberMtx);
+		auto sub_pair = mSubscribers.find(subscriber->GetId());
+		if (sub_pair == mSubscribers.end())
+		{
+			//Handle attempt to remove unsubscribed module
+			return;
+		}
+		mSubscribers.erase(sub_pair);
+	}
 
 //////////////////////////////////////////////////////////////////////
 ///\ fn Module::SendToSubscribers(Module::event_ptr)
@@ -226,9 +244,10 @@ unsigned int Module::NextModuleId = 0;
 
 	void Module::SendToSubscribers(Module::event_ptr event_item)
 	{
+		std::lock_guard<std::mutex> locker(mSubscriberMtx);
 		for (auto subscriber : mSubscribers)
 		{
-			std::shared_ptr<Module>(subscriber)->AddEvent(event_item);
+			std::shared_ptr<Module>(subscriber.second)->AddEvent(event_item);
 		}
 	}
 

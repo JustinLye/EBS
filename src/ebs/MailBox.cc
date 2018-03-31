@@ -6,6 +6,13 @@
 #ifdef BUILD_MAIL_BOX_CC
 #endif
 
+///////////////////////////////////////////////
+///\ fn MailBox<T>::Empty() const
+///\ returns true if box is empty
+///\ author Justin Lye
+///\ date 03/21/2018
+///////////////////////////////////////////////
+
 template<typename T>
 inline bool MailBox<T>::Empty() const
 {

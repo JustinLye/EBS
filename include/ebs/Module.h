@@ -39,6 +39,7 @@ protected:
 	bool mShutdown; ///< Signals it is time to shutdown the moduel. Every module needs to be able to shut itself down.
 	module_state_t mModuleState; ///< Set to read when thread has entered event loop
 	std::mutex mUpdateStateMtx; ///< Protect access while updating/querying module state
+	std::mutex mSubscriberMtx; ///< Protect access while using subscriber list
 	std::condition_variable mUpdateStateCond; ///< Condition variable to wait on state 
 	void EntryPoint(); ///< Implement pure virtual function Thread::EntryPoint()
 	bound_cb GetMail(); ///< Receives next message from mailbox. Blocks until message is received (i.e. every module must be able to receive and handle the SHUTDOWN event).
@@ -48,13 +49,15 @@ protected:
 	unsigned int mId; ///< Default Id assigned to the module
 	cb_map mEventHandlerMap; ///< Maps event names to their handlers
 	MailBox<bound_cb> mMailBox; ///< Queue used to receive messages. 
-	std::vector<std::weak_ptr<Module>> mSubscribers; ///< All other modules that receive notifications from this module.
+	//std::vector<std::weak_ptr<Module>> mSubscribers; ///< All other modules that receive notifications from this module.
+	std::map<unsigned int, std::weak_ptr<Module>> mSubscribers;
 public:
 	Module(); ///< Default constructor
 	virtual ~Module(); ///< Destructor
 
 	virtual void AddEvent(event_ptr);
 	virtual void AddSubscriber(std::shared_ptr<Module>);
+	virtual void RemoveSubscriber(std::shared_ptr<Module>);
 	virtual void SendToSubscribers(event_ptr);
 	const unsigned int& GetId() const;
 	bool IsShuttingDown() const;

@@ -9,7 +9,7 @@
 #include"ebs/EventName.cc"
 
 //////////////////////////////////////////////
-///\ class BaseEvent
+///\ class Event
 ///\ brief Generic container used to pass information from 
 ///  one event module to the next
 //////////////////////////////////////////////
