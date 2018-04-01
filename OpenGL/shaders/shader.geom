@@ -1,5 +1,6 @@
 #version 330 core
 layout (triangles) in;
+uniform int maxv;
 layout (triangle_strip, max_vertices=256) out; 
  
 //uniforms
