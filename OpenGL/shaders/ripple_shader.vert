@@ -3,13 +3,7 @@
 layout(location=0) in vec3 vVertex;		//object space vertex position
 
 //uniforms
-uniform mat4 MVP;		//combined modelview projection matrix
-uniform float time;		//elapsed time 
-uniform float amplitude;
-uniform float frequency;
-//shader constants
 
-const float PI = 3.14159;
 
 void main()
 { 
@@ -18,5 +12,5 @@ void main()
 	//create a sin function using the distance, multiply frequency and add the elapsed time
 	float y = amplitude*sin(-PI*distance*frequency+time);		
 	//multiply the MVP matrix with the new position to get the clipspace position
-	gl_Position = MVP*vec4(vVertex.x, y, vVertex.z,1);
+	gl_Position = vec4(vVertex.x, y, vVertex.z,1);
 }

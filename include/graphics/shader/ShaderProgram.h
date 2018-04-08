@@ -70,7 +70,6 @@ void ShaderProgram::LoadFromFile(const GLenum& shader_type, const std::string& f
 
 void ShaderProgram::LoadFromString(const GLenum& shader_type, const std::string& source_string)
 {
-	std::cout << __FUNCTION__ << ' ' << __LINE__ << '\n';
 	switch (shader_type)
 	{
 	case VERTEX:
