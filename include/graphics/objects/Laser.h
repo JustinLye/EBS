@@ -62,7 +62,7 @@ void Laser::FillVertexBuffer(GLfloat* buffer)
 {
 	glm::vec3* verts = (glm::vec3*)buffer;
 	verts[0] = glm::vec3(0.0f, -1.0f, 0.0f);
-	verts[1] = glm::vec3(0.0f, -0.85f, 0.0f);
+	verts[1] = glm::vec3(0.0f, -0.92f, 0.0f);
 }
 
 void Laser::FillIndexBuffer(GLuint* buffer)
