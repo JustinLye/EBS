@@ -23,18 +23,21 @@ public:
 	static const float DEFAULT_MAX_SPAWN_TIME;
 	static const float DEFAULT_START_MIN_SPAWN_TIME;
 	static const float DEFAULT_START_MAX_SPAWN_TIME;
+	
 
 	AstroidManager();
 	~AstroidManager();
 
 	void Update(const float&);
-
+	void Render();
 	void MaxActiveAstroids(const unsigned int&);
 	const unsigned int& MaxActiveAstroids() const;
 
 	void StartingSpeed(const float&);
 	const float& StartingSpeed() const;
-
+	Astroid** mAstroidArray;
+	std::queue<unsigned int> mAvailableIndexQueue;
+	std::list<unsigned int> mActiveIndexList;
 protected:
 	const unsigned int mMaxAstroids;
 	const float mTermYPos;
@@ -43,9 +46,7 @@ protected:
 	float mStartingSpeed;
 	unsigned int mMaxActiveAstroids;
 	
-	Astroid** mAstroidArray;
-	std::queue<unsigned int> mAvailableIndexQueue;
-	std::list<unsigned int> mActiveIndexList;
+
 	std::pair<float, float> mSpawnMinMaxTimes;
 	std::random_device mRd;
 	std::mt19937 mGen;
@@ -60,7 +61,7 @@ protected:
 	void TrySpawn();
 };
 
-const unsigned int AstroidManager::DEFAULT_MAX_ASTROIDS = 60;
+const unsigned int AstroidManager::DEFAULT_MAX_ASTROIDS = 15;
 const float AstroidManager::DEFAULT_Y_TERM_POS = -2.20f;
 const float AstroidManager::DEFAULT_STARTING_SPEED = 0.26f;
 const unsigned int AstroidManager::DEFAULT_MAX_ACTIVE_ASTROIDS = 10;
@@ -104,10 +105,22 @@ void AstroidManager::Update(const float& dt)
 		}
 		else
 		{
-			mTranslateMat = glm::translate(mIdentityMat, mAstroidArray[*iter]->mTranslate);
-			mAstroidArray[*iter]->Render(glm::value_ptr(mTranslateMat));
 			++iter;
 		}
+	}
+}
+
+void AstroidManager::Render()
+{
+	std::list<unsigned int>::iterator iter = mActiveIndexList.begin();
+	while (iter != mActiveIndexList.end())
+	{
+		mTranslateMat = glm::translate(mIdentityMat, mAstroidArray[*iter]->mTranslate);
+		mAstroidArray[*iter]->Render(glm::value_ptr(mTranslateMat));
+#ifdef COLLISION_DEBUG
+		mAstroidArray[*iter]->mDetectionSphere->Render(glm::value_ptr(mTranslateMat));
+#endif
+		++iter;
 	}
 }
 

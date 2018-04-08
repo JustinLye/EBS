@@ -12,14 +12,103 @@
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
+#include<boost/lexical_cast.hpp>
 
 #include"graphics/objects/Ship.h"
 #include"entities/LaserCannon.h"
 #include"entities/AstroidManager.h"
+#include"graphics/geometry/Sphere.h"
+#ifdef FONT_DEBUG
+#include"graphics/objects/Canvas.h"
+#endif
+#ifdef COLLISION_DEBUG
+class TestSphere :
+	public Sphere
+{
+public:
+	TestSphere() :
+		Sphere()
+	{
+		Init();
+		mShader.LoadFromFile(ShaderProgram::VERTEX, "C:\\EBS\\OpenGL\\shaders\\sphere.vert");
+		mShader.LoadFromFile(ShaderProgram::FRAGMENT, "C:\\EBS\\OpenGL\\shaders\\sphere.frag");
+		mShader.CreateAndLink();
+		mShader.Use();
+		mShader.AddAttribute("vVertex");
+		mShader.AutoFillUniformsFromFile("C:\\EBS\\OpenGL\\shaders\\sphere.vert");
+		mShader.AutoFillUniformsFromFile("C:\\EBS\\OpenGL\\shaders\\sphere.frag");
+		mShader.UnUse();
+	}
 
-#define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
+	float GetRadius()
+	{
+		return 0.085f;
+	}
+	glm::vec3 GetOrigin()
+	{
+		return glm::vec3(0.0f, -0.85f, 0.0f);
+	}
+};
+#endif
+
 const int WINDOW_HEIGHT = 960;
 const int WINDOW_WIDTH = 1280;
+
+#ifdef FONT_DEBUG
+class TestFont :
+	public Font
+{
+public:
+	TestFont() :
+		Font()
+	{
+		Init();
+	}
+	virtual ~TestFont()
+	{
+
+	}
+	const char* PathToFont()
+	{
+		return "C:\\EBS\\OpenGL\\fonts\\arial.ttf";
+	}
+	int FontWidth()
+	{
+		return 0;
+	}
+	int FontHeight()
+	{
+		return 48;
+	}
+};
+
+class TestCanvas :
+	public Canvas
+{
+public:
+	TestCanvas() :
+		Canvas()
+	{
+
+	}
+	~TestCanvas()
+	{
+
+	}
+	float ScreenWidth()
+	{
+		return WINDOW_WIDTH;
+	}
+	float ScreenHeight()
+	{
+		return WINDOW_HEIGHT;
+	}
+};
+
+#endif
+
+#define GL_CHECK_ERRORS assert(glGetError()== GL_NO_ERROR);
+
 const std::string VERTEX_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\shader.vert";
 const std::string RIPPLE_VERTEX_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\ripple_shader.vert";
 const std::string FRAGMENT_SHADER_PATH = "C:\\EBS\\OpenGL\\shaders\\shader.frag";
@@ -47,7 +136,18 @@ const unsigned int SHOT_TIMEOUT = 80;
 const float TERM_Y_VAL = 2.20f;
 LaserCannon* cannon;
 AstroidManager* astroid_mgr;
+#ifdef COLLISION_DEBUG
+TestSphere* test_sphere;
+void DoCollisionDetection();
+#endif
+#ifdef FONT_DEBUG
+TestFont* test_font;
+TestCanvas* test_canvas;
+#endif
 GLFWwindow* InitOpenGL();
+unsigned int astroids_destroyed = 0;
+const std::string SCORE_TEXT = "Astroids Destroyed: ";
+#define GetScoreText(score) SCORE_TEXT + boost::lexical_cast<std::string>(score)
 void HandleResize(GLFWwindow*, int, int);
 void HandleKeyPress(GLFWwindow*, int, int, int, int);
 void AdditionalInputHandler(GLFWwindow*);
@@ -61,6 +161,16 @@ int main(int argc, char* argv[])
 		glfwSetKeyCallback(window, HandleKeyPress);
 		
 		ship = new Ship();
+#ifdef COLLISION_DEBUG
+		test_sphere = new TestSphere();
+		
+#endif
+#ifdef FONT_DEBUG
+		//test_font = new TestFont();
+		test_canvas = new TestCanvas();
+		test_canvas->mFont = std::shared_ptr<Font>(new TestFont());
+		test_canvas->Init();
+#endif
 		double old_time = glfwGetTime();
 		cannon = new LaserCannon(AMMO_CAP, SHOT_TIMEOUT, TERM_Y_VAL);
 		long target_frame_rate_ms = 16;
@@ -87,7 +197,14 @@ int main(int argc, char* argv[])
 			{
 				m = glm::translate(m, ship->mTranslate);
 			}
+			astroid_mgr->Render();
+			cannon->Render();
 			ship->Render(glm::value_ptr(m));
+			test_canvas->Render(GetScoreText(astroids_destroyed), 25.0f, WINDOW_HEIGHT-25.0f, 0.25f, glm::vec3(0.5f, 0.8f, 0.2f));
+#ifdef COLLISION_DEBUG
+			test_sphere->Render(glm::value_ptr(m));
+			DoCollisionDetection();
+#endif
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 			std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start_time;
@@ -157,3 +274,47 @@ void HandleKeyPress(GLFWwindow* window, int key, int scancode, int action, int m
 	}
 
 }
+
+#ifdef COLLISION_DEBUG
+void DoCollisionDetection()
+{
+	std::list<unsigned int>::iterator astroid_iter = astroid_mgr->mActiveIndexList.begin();
+	while (astroid_iter != astroid_mgr->mActiveIndexList.end())
+	{
+		std::list<unsigned int>::iterator laser_iter = cannon->mActiveIndexList.begin();
+		Astroid* astroid = astroid_mgr->mAstroidArray[*astroid_iter];
+		bool destroy_astroid = false;
+		while (laser_iter != cannon->mActiveIndexList.end())
+		{
+			Laser* laser = cannon->mLaserMag[*laser_iter];
+			if (astroid->mCollider.CollisionDetected(laser->mCollider))
+			{
+				++astroids_destroyed;
+				astroid->Color(glm::vec4(std::min(1.0f,astroid->Color().x+0.10f), 0.0f, 0.0f, 0.5f));
+				if (astroid->Speed() < 3.0f)
+				{
+					astroid->Speed(astroid->Speed()*1.25);
+				}
+				destroy_astroid = true;
+				cannon->mAvailableIndexQueue.push(*laser_iter);
+				laser_iter = cannon->mActiveIndexList.erase(laser_iter);
+				std::cout << "collision detected\n";
+				break;
+			}
+			else
+			{
+				++laser_iter;
+			}
+		}
+		if (destroy_astroid)
+		{
+			astroid_mgr->mAvailableIndexQueue.push(*astroid_iter);
+			astroid_iter = astroid_mgr->mActiveIndexList.erase(astroid_iter);
+		}
+		else
+		{
+			++astroid_iter;
+		}
+	}
+}
+#endif

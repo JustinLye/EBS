@@ -2,28 +2,28 @@
 #define SHIP_HEADER_INCLUDED
 #include<glm/glm.hpp>
 #include<algorithm>
-#include"graphics/geometry/RenderableObject.h"
+#include"graphics/geometry/Triangle.h"
 
 class Ship :
-	public RenderableObject
+	public Triangle
 {
 
 public:
 	Ship();
 	~Ship();
-	int GetTotalVertices();
-	int GetTotalIndices();
-	virtual GLenum GetPrimitiveType();
-	void FillVertexBuffer(GLfloat*);
-	void FillIndexBuffer(GLuint*);
+	glm::vec3 Vertex0();
+	glm::vec3 Vertex1();
+	glm::vec3 Vertex2();
 	glm::vec3 mTranslate;
-	glm::vec3 mCurrentPosition;
 	glm::vec3 mTargetPosition;
-	glm::vec3 mMidPoint;
-	float mLeftMomentum;
-	float mRightMomentum;
+	glm::vec3 mLeftWing;
+	glm::vec3 mRightWing;
+	glm::vec3 mNose;
+	glm::vec3 LeftSide() const;
+	glm::vec3 RightSide() const;
+	glm::vec3 Nose() const;
+	std::pair<glm::vec3, float> SphereOfDetection() const;
 	float mMaxSpeed;
-	float mMomentum;
 	enum DIRECTION : unsigned int
 	{
 		LEFT,
@@ -32,19 +32,20 @@ public:
 	void Strafe(const DIRECTION&);
 	void Update(const float&);
 protected:
-	
+	float mAvgYPos;
+	float mRadius;
 };
 
 Ship::Ship() :
-	RenderableObject(),
+	Triangle(),
 	mTranslate(glm::vec3(0.0f)),
 	mTargetPosition(glm::vec3(0.0f)),
-	mCurrentPosition(glm::vec3(0.0f)),
-	mMidPoint(glm::vec3(0.0f)),
-	mLeftMomentum(0.0f),
-	mRightMomentum(0.0f),
-	mMaxSpeed(0.50f),
-	mMomentum(0.0f)
+	mLeftWing(glm::vec3(-0.08f, -0.90f, 0.0f)),
+	mRightWing(glm::vec3(0.08f, -0.90f, 0.0f)),
+	mNose(glm::vec3(0.0f, -0.75f, 0.0f)),
+	mMaxSpeed(0.80f),
+	mAvgYPos(0.85f),
+	mRadius(0.085f)
 {
 	Init();
 	mShader.LoadFromFile(ShaderProgram::VERTEX, "C:\\EBS\\OpenGL\\shaders\\ship.vert");
@@ -62,37 +63,22 @@ Ship::~Ship()
 
 }
 
-int Ship::GetTotalVertices()
+
+glm::vec3 Ship::Vertex0()
 {
-	return 3;
+	return glm::vec3(-0.08f, -0.90f, 0.0f);
 }
 
-int Ship::GetTotalIndices()
+glm::vec3 Ship::Vertex1()
 {
-	return 3;
+	return glm::vec3(0.0f, -0.75f, 0.0f);
 }
 
-GLenum Ship::GetPrimitiveType()
+glm::vec3 Ship::Vertex2()
 {
-	return GL_TRIANGLES;
+	return glm::vec3(0.08f, -0.90f, 0.0f);
 }
 
-void Ship::FillVertexBuffer(GLfloat* buffer)
-{
-	glm::vec3* verts = (glm::vec3*)buffer;
-	verts[0] = glm::vec3(-0.08, -0.90, 0.0);
-	verts[1] = glm::vec3(0.0, -0.75, 0.0f);
-	verts[2] = glm::vec3(0.08, -0.90, 0.0f);
-
-}
-
-void Ship::FillIndexBuffer(GLuint* buffer)
-{
-	GLuint* id = buffer;
-	*id++ = 0;
-	*id++ = 1;
-	*id++ = 2;
-}
 
 void Ship::Update(const float& dt)
 {
@@ -110,6 +96,28 @@ void Ship::Update(const float& dt)
 			mTranslate.x = 1.0f;
 		}
 	}
+}
+
+glm::vec3 Ship::LeftSide() const
+{
+	return glm::vec3(mLeftWing.x + mTranslate.x, -0.90f, 0.0f);
+}
+
+glm::vec3 Ship::RightSide() const
+{
+	return glm::vec3(mRightWing.x + mTranslate.x, -0.90f, 0.0f);
+}
+
+glm::vec3 Ship::Nose() const
+{
+	return glm::vec3(mNose.x + mTranslate.x, -0.75f, 0.0f);
+}
+
+std::pair<glm::vec3, float> Ship::SphereOfDetection() const
+{
+	float x_pos = ((mLeftWing.x + mTranslate.x + mRightWing.x + mTranslate.x + mNose.x + mTranslate.x) / 3.0f);
+	return { glm::vec3(x_pos, mAvgYPos, 0.0f), mRadius };
+	
 }
 
 void Ship::Strafe(const DIRECTION& direction)

@@ -12,7 +12,7 @@ public:
 	virtual int GetTotalVertices() = 0;
 	virtual int GetTotalIndices() = 0;
 	virtual GLenum GetPrimitiveType() = 0;
-
+	virtual GLenum GetPolygonMode();
 	virtual void FillVertexBuffer(GLfloat*) = 0;
 	virtual void FillIndexBuffer(GLuint*) = 0;
 
@@ -26,6 +26,7 @@ protected:
 	GLuint mVboIndicesId;
 	ShaderProgram mShader;
 	GLenum mPrimitiveType;
+	GLenum mPolygonMode;
 	int mTotalVertices;
 	int mTotalIndices;
 };
@@ -53,8 +54,12 @@ void RenderableObject::Render(const float* MVP)
 	glUniformMatrix4fv(mShader("MVP"), 1, GL_FALSE, MVP);
 	SetCustomUniforms();
 	glBindVertexArray(mVaoId);
+	GLint prev_poly_mode;
+	glGetIntegerv(GL_POLYGON_MODE, &prev_poly_mode);
+	glPolygonMode(GL_FRONT_AND_BACK, mPolygonMode);
 	glDrawElements(mPrimitiveType, mTotalIndices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	glPolygonMode(GL_FRONT_AND_BACK, prev_poly_mode);
 	mShader.UnUse();
 }
 
@@ -72,7 +77,7 @@ void RenderableObject::Init()
 	mTotalVertices = GetTotalVertices();
 	mTotalIndices = GetTotalIndices();
 	mPrimitiveType = GetPrimitiveType();
-
+	mPolygonMode = GetPolygonMode();
 	glBindVertexArray(mVaoId);
 	glBindBuffer(GL_ARRAY_BUFFER, mVboVerticesId);
 	glBufferData(GL_ARRAY_BUFFER, mTotalVertices * sizeof(glm::vec3), 0, GL_STATIC_DRAW);
@@ -96,6 +101,11 @@ void RenderableObject::Destroy()
 	glDeleteBuffers(1, &mVboVerticesId);
 	glDeleteBuffers(1, &mVboIndicesId);
 	glDeleteVertexArrays(1, &mVaoId);
+}
+
+GLenum RenderableObject::GetPolygonMode()
+{
+	return GL_LINE;
 }
 
 #endif

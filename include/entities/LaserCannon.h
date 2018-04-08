@@ -19,10 +19,14 @@ public:
 	LaserCannon(const unsigned int& = DEFAULT_AMMO_CAPACITY, const unsigned int& = DEFAULT_SHOT_COOLDOWN_MS, const float& = DEFAULT_TERMINATION_Y_VALUE, const unsigned int& = DEFAULT_OVERHEAT_TIMEOUT_MS);
 	virtual ~LaserCannon();
 	virtual void Update(const float&);
+	virtual void Render();
 	virtual void Fire(const glm::vec3&);
 	unsigned int ShotsRemaining() const;
 	const unsigned int& AmmoCapacity() const;
 	const unsigned int& ShotCoolDownMs() const;
+	Laser** mLaserMag;
+	std::list<unsigned int> mActiveIndexList;
+	std::queue<unsigned int> mAvailableIndexQueue;
 protected:
 	const unsigned int mAmmoCapacity;
 	const unsigned int mShotCoolDownMs;
@@ -32,9 +36,8 @@ protected:
 	glm::mat4 mIdentityMat;
 	glm::mat4 mTranslateMat;
 	std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::duration<double,std::milli>> mLastTimeFired;
-	Laser** mLaserMag;
-	std::queue<unsigned int> mAvailableIndexQueue;
-	std::list<unsigned int> mActiveIndexList;
+	
+	
 	void InitCannon();
 	void FireCannon(const glm::vec3&);
 	
@@ -82,10 +85,23 @@ void LaserCannon::Update(const float& dt)
 		}
 		else
 		{
-			mTranslateMat = glm::translate(mIdentityMat, laser->mTranslate);
-			laser->Render(glm::value_ptr(mTranslateMat));
-			iter++;
+			++iter;
 		}
+	}
+}
+
+void LaserCannon::Render()
+{
+	std::list<unsigned int>::iterator iter = mActiveIndexList.begin();
+	while (iter != mActiveIndexList.end())
+	{
+		Laser* laser = mLaserMag[*iter];
+		mTranslateMat = glm::translate(mIdentityMat, laser->mTranslate);
+		laser->Render(glm::value_ptr(mTranslateMat));
+#ifdef COLLISION_DEBUG
+		laser->mDetectionSphere->Render(glm::value_ptr(mTranslateMat));
+#endif
+		++iter;
 	}
 }
 
@@ -131,6 +147,8 @@ void LaserCannon::FireCannon(const glm::vec3& pos)
 			mActiveIndexList.push_front(i);
 			mLaserMag[i]->mTranslate.y = pos.y;
 			mLaserMag[i]->mTranslate.x = pos.x;
+			mLaserMag[i]->mCollider.mTranslate.y = pos.y;
+			mLaserMag[i]->mCollider.mTranslate.x = pos.x;
 			mLastTimeFired = std::chrono::high_resolution_clock::now();
 			mCurrentCoolDown = mShotCoolDownMs;
 		}
